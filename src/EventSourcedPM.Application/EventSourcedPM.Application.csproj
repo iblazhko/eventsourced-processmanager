@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="MassTransit" />
+    <PackageReference Include="Serilog" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EventSourcedPM.Configuration\EventSourcedPM.Configuration.csproj" />
+    <ProjectReference Include="..\EventSourcedPM.Domain\EventSourcedPM.Domain.csproj" />
+    <ProjectReference Include="..\EventSourcedPM.Ports.CarrierIntegration\EventSourcedPM.Ports.CarrierIntegration.csproj" />
+    <ProjectReference Include="..\EventSourcedPM.Ports.MessageBus\EventSourcedPM.Ports.MessageBus.csproj" />
+  </ItemGroup>
+
+</Project>

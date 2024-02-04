@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="OneOf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EventSourcedPM.Messaging\EventSourcedPM.Messaging.csproj" />
+    <ProjectReference Include="..\EventSourcedPM.Ports.EventStore\EventSourcedPM.Ports.EventStore.csproj" />
+  </ItemGroup>
+
+</Project>

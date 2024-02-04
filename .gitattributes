@@ -1,0 +1,26 @@
+* text=auto
+*.config        text
+*.csproj        text
+*.Dockerfile    text
+*.DotSettings   text
+*.editorconfig  text
+*.env           text
+*.feature       text
+*.fs            text
+*.fsproj        text
+*.fsx           text
+*.gitattributes text
+*.gitignore     text
+*.markdown      text
+*.md            text
+*.ps1           text eol=lf
+*.psd1          text eol=lf
+*.psm1          text eol=lf
+*.puml          text
+*.sh            text eol=lf
+*.sln           text
+*.sql           text
+*.toml          text
+*.xml           text
+*.yaml          text
+*.yml           text

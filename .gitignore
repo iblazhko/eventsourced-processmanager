@@ -1,0 +1,59 @@
+# VisualStudio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.ionide/
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# Visual Studio cache/options directory
+.vs/
+
+# VisualStudio user-specific files
+*.suo
+*.user
+*.userosscache
+*.userprefs
+*.sln.docstates
+
+# Build output
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# Test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.VisualState.xml
+TestResult.xml
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# DotCover is a Code Coverage Tool
+*.dotCover
+
+# Visual Studio code coverage results
+*.coverage
+*.coveragexml
+
+# NuGet Packages
+*.nupkg
+*.nuget.props
+*.nuget.targets
+
+# Various temp files
+.DS_Store

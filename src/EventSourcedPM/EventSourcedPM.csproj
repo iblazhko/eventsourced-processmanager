@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <PackageReference Include="Marten.AspNetCore" />
+    <PackageReference Include="MassTransit" />
+    <PackageReference Include="MassTransit.RabbitMQ" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+    <PackageReference Include="OneOf" />
+    <PackageReference Include="Polly" />
+    <PackageReference Include="Polly.Contrib.WaitAndRetry" />
+    <PackageReference Include="Serilog" />
+    <PackageReference Include="Serilog.Extensions.Hosting" />
+    <PackageReference Include="Serilog.Sinks.Console" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EventSourcedPM.Adapter.CarrierIntegrationStub\EventSourcedPM.Adapter.CarrierIntegrationStub.csproj" />
+    <ProjectReference Include="..\EventSourcedPM.Adapters.MartenDbEventStore\EventSourcedPM.Adapters.MartenDbEventStore.csproj" />
+    <ProjectReference Include="..\EventSourcedPM.Adapters.MassTransitEventStorePublisher\EventSourcedPM.Adapters.MassTransitEventStorePublisher.csproj" />
+    <ProjectReference Include="..\EventSourcedPM.Adapters.MassTransitMessageBus\EventSourcedPM.Adapters.MassTransitMessageBus.csproj" />
+    <ProjectReference Include="..\EventSourcedPM.Application\EventSourcedPM.Application.csproj" />
+    <ProjectReference Include="..\EventSourcedPM.Domain\EventSourcedPM.Domain.csproj" />
+    <ProjectReference Include="..\EventSourcedPM.Ports.EventStore\EventSourcedPM.Ports.EventStore.csproj" />
+    <ProjectReference Include="..\EventSourcedPM.Ports.MessageBus\EventSourcedPM.Ports.MessageBus.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

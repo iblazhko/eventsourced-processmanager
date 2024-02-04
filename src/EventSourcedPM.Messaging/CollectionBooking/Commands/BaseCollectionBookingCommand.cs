@@ -1,0 +1,3 @@
+namespace EventSourcedPM.Messaging.CollectionBooking.Commands;
+
+public abstract class BaseCollectionBookingCommand : BaseShipmentWithProcessCategoryCommand;

@@ -1,0 +1,3 @@
+namespace EventSourcedPM.Messaging.ManifestationAndDocuments.Commands;
+
+public abstract class BaseShipmentCommand : BaseShipmentWithProcessCategoryCommand;

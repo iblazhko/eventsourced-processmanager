@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+      <PackageReference Include="MassTransit" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\EventSourcedPM.Ports.MessageBus\EventSourcedPM.Ports.MessageBus.csproj" />
+    </ItemGroup>
+
+</Project>
