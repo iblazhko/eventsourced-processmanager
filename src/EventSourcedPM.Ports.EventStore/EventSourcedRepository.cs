@@ -39,9 +39,8 @@ public class EventSourcedRepository<TState, TEvent>
         if (newEvents.Count > 0)
         {
             await session.AppendEvents(newEvents.Cast<object>().AsEnumerable());
+            await session.Save();
         }
-
-        await session.Save();
 
         return newEvents;
     }
