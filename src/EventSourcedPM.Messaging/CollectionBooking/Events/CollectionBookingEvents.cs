@@ -32,7 +32,7 @@ public class CollectionBooked : BaseCollectionBookingEvent
     public string BookingReference { get; init; }
 }
 
-public class CollectionBookingFailed : BaseCollectionBookingEvent
+public class CollectionBookingSubprocessFailed : BaseCollectionBookingEvent
 {
     public string Failure { get; init; }
 }

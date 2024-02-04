@@ -10,7 +10,13 @@ public class ManifestationAndDocumentsStateProjection
     : IEventStreamProjection<ManifestationAndDocumentsState, BaseShipmentEvent>
 {
     public ManifestationAndDocumentsState GetInitialState(string streamId) =>
-        new(default, default, default, default, default);
+        new(
+            default,
+            default,
+            Array.Empty<ShipmentLeg>(),
+            Array.Empty<ManifestedShipmentLeg>(),
+            new ShipmentDocuments(default, default, default, default)
+        );
 
     public ManifestationAndDocumentsState Apply(
         ManifestationAndDocumentsState state,

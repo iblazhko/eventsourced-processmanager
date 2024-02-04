@@ -98,7 +98,7 @@ public static class CollectionBookingAggregate
         string failure
     ) =>
         [
-            new CollectionBookingFailed
+            new CollectionBookingSubprocessFailed
             {
                 ShipmentId = (string)state.ShipmentId,
                 ProcessCategory = (string)processCategory,

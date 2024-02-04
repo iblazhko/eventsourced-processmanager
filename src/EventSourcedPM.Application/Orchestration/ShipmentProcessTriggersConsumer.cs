@@ -37,7 +37,7 @@ public class ShipmentProcessTriggersConsumer(IShipmentProcessManager processMana
         IConsumer<CombinedDocumentGenerationFailed>,
         IConsumer<CollectionBookingStarted>,
         IConsumer<CollectionBookingEvents.CollectionBooked>,
-        IConsumer<CollectionBookingEvents.CollectionBookingFailed>,
+        IConsumer<CollectionBookingEvents.CollectionBookingSubprocessFailed>,
         IConsumer<CollectionBookingCompleted>,
         IConsumer<CollectionBookingFailed>,
         IConsumer<ShipmentProcessCompletionChecked>
@@ -137,7 +137,7 @@ public class ShipmentProcessTriggersConsumer(IShipmentProcessManager processMana
     public Task Consume(ConsumeContext<CollectionBookingEvents.CollectionBooked> context) =>
         processManager.InvokeProcessTrigger(context.Message);
 
-    public Task Consume(ConsumeContext<CollectionBookingEvents.CollectionBookingFailed> context) =>
+    public Task Consume(ConsumeContext<CollectionBookingEvents.CollectionBookingSubprocessFailed> context) =>
         processManager.InvokeProcessTrigger(context.Message);
 
     public Task Consume(ConsumeContext<CollectionBookingCompleted> context) =>

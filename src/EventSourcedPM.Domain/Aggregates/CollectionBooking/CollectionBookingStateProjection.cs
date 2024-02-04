@@ -57,7 +57,7 @@ public class CollectionBookingStateProjection
                 {
                     Status = CollectionBookingProcessStatus.Booked(x.BookingReference)
                 },
-            CollectionBookingFailed x
+            CollectionBookingSubprocessFailed x
                 => state with
                 {
                     Status = CollectionBookingProcessStatus.BookingFailed(x.Failure)

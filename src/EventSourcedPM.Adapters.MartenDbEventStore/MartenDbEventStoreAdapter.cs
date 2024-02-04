@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using EventSourcedPM.Ports.EventStore;
 using Marten;
@@ -33,7 +34,6 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>
     )
     {
         this.eventPublisher = eventPublisher;
-
         session = documentStore.LightweightSession();
         this.streamId = streamId;
         savedEvents = new();
@@ -59,6 +59,18 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>
         if (mtEvents?.Count > 0)
         {
             savedEvents.AddRange(MapFromMartenEvents(mtEvents));
+
+            var incompatibleEvents = savedEvents
+                .Where(e => !EventTypeIsCompatible(e.Event))
+                .Select(e => e.GetType().FullName)
+                .ToList();
+            if (incompatibleEvents.Count > 0)
+            {
+                throw new InvalidOperationException(
+                    $"Event stream {streamId} contains events not compatible with {typeof(TEvent).FullName}: {string.Join(", ", incompatibleEvents)}"
+                );
+            }
+
             savedVersion = mtEvents[^1].Version;
         }
     }
@@ -86,8 +98,13 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>
         newEvents.AddRange(
             events
                 ?.Where(e => e != null)
-                .Select(e => new EventWithMetadata(e, e.GetType().FullName, null))
-                ?? Enumerable.Empty<EventWithMetadata>()
+                .Select(e =>
+                    EventTypeIsCompatible(e)
+                        ? new EventWithMetadata(e, e.GetType().FullName, null)
+                        : throw new InvalidOperationException(
+                            $"Event ${e.GetType().FullName} is not compatible with ${typeof(TEvent).FullName}"
+                        )
+                ) ?? Enumerable.Empty<EventWithMetadata>()
         );
 
         return Task.CompletedTask;
@@ -108,6 +125,17 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>
         Log.Debug("[EVENTSTORE] Save event stream {EventStreamId}", streamId);
         if (newEvents.Count == 0)
             return;
+
+        var incompatibleEvents = newEvents
+            .Where(e => !EventTypeIsCompatible(e.Event))
+            .Select(e => e.GetType().FullName)
+            .ToList();
+        if (incompatibleEvents.Count > 0)
+        {
+            throw new InvalidOperationException(
+                $"Event stream {streamId} session contains events not compatible with {typeof(TEvent).FullName}: {string.Join(", ", incompatibleEvents)}"
+            );
+        }
 
         var mtEvents = newEvents.Select(e => e.Event);
         _ = savedVersion switch
@@ -136,6 +164,9 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>
     {
         return session?.DisposeAsync() ?? ValueTask.CompletedTask;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool EventTypeIsCompatible(object evt) => evt.GetType().IsAssignableTo(typeof(TEvent));
 }
 
 public sealed class MartenDbEventStoreAdapter<TState, TEvent> : IEventStore<TState, TEvent>

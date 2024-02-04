@@ -31,7 +31,7 @@ public static partial class DecideThat
         ];
 
     public static IEnumerable<BaseShipmentProcessEvent> CollectionBookingFailed(
-        CollectionBookingEvents.CollectionBookingFailed trigger
+        CollectionBookingEvents.CollectionBookingSubprocessFailed trigger
     ) =>
         [
             new CollectionBookingFailed

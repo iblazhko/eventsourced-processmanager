@@ -161,7 +161,7 @@ public class InternationalShipmentProcessV1 : IShipmentProcess
                 {
                     CollectionBookingEvents.CollectionBooked x
                         => DecideThat.CollectionBookingCompleted(x),
-                    CollectionBookingEvents.CollectionBookingFailed x
+                    CollectionBookingEvents.CollectionBookingSubprocessFailed x
                         => DecideThat.CollectionBookingFailed(x),
                     _ => throw new TriggerNotSupportedException(trigger.GetType().FullName)
                 }

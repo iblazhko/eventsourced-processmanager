@@ -15,7 +15,7 @@ services:
       POSTGRES_DB: "espm"
     networks:
       - devnet
-  
+
   rabbitmq:
     image: rabbitmq:3.12-management
     volumes:
