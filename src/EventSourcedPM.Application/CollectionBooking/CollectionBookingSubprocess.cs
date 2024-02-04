@@ -163,7 +163,7 @@ public class CollectionBookingSubprocess(
     )
     {
         // FIXME: Workaround against concurrency exceptions
-        await Task.Delay(TimeSpan.FromMilliseconds(20));
+        // await Task.Delay(TimeSpan.FromMilliseconds(20));
 
         CollectionBookingState collectionBookingState = default;
         var newEvents = await collectionBookingRepository.Upsert(

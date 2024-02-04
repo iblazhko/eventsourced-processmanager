@@ -197,7 +197,7 @@ public class ManifestationAndDocumentsSubprocess(
     )
     {
         // FIXME: Workaround against concurrency exceptions
-        await Task.Delay(TimeSpan.FromMilliseconds(20));
+        // await Task.Delay(TimeSpan.FromMilliseconds(20));
 
         ManifestationAndDocumentsState manifestationAndDocumentsState = default;
         var newEvents = await manifestationAndDocumentsRepository.Upsert(

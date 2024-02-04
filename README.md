@@ -8,7 +8,7 @@ is to use a state machine. There may be a few concerns about that:
   operations, it may be difficult to see how we got into a given state
 * If a business process is long-running, we may need to change the process
   rules in the middle of a process (e.g. new legal regulation are introduced
-  that make pending procees definition not valid anymore). This can make it
+  that make pending process definition not valid anymore). This can make it
   difficult to switch from one state machine to another while keeping internal
   state consistent
 
@@ -29,7 +29,7 @@ This solution explores an option of building event-sourced process manager
 using .NET/C#.
 
 It uses "ports and adapters" (a.k.a. hexagonal architecture)
-approcah; *Event Store* and *Message Bus* concepts are encapsulated in
+approach; *Event Store* and *Message Bus* concepts are encapsulated in
 respective Ports, and there are Adapters for actual implementation.
 This solution uses [MassTransit](https://masstransit.io/) /
 [RabbitMQ](https://rabbitmq.com/) for the underlying message bus implementation,
@@ -199,7 +199,21 @@ http post http://localhost:43210/c7de2c4a-dded-47de-8d24-564d7ade3e22
 http post http://localhost:43210/c7de2c4a-dded-47de-8d24-564d7ade3e23
 ```
 
-Observe events in MartenDB/Postgres (`mt_streams` / `mt_events` tables)
+Observe events in MartenDB/Postgres:
+
+```sql
+select * from mt_events
+where stream_id = 'Process_15916b8a-5d11-456f-9934-ed91c2bd82c0'
+order by version;
+
+select * from mt_events
+where stream_id = 'Shipment_15916b8a-5d11-456f-9934-ed91c2bd82c0'
+order by version;
+
+select * from mt_events
+where stream_id = 'Collection_15916b8a-5d11-456f-9934-ed91c2bd82c0'
+order by version;
+```
 
 *Shipment Process* event stream example:
 
@@ -263,7 +277,7 @@ http get http://localhost:43210/15916b8a-5d11-456f-9934-ed91c2bd82c0
 
 * `IShipmentProcess` implementation (e.g. `InternationalShipmentProcessV1`) file
   can be large and complicated, however it is still manageable, and we have a
-  single place to look at when we need to understant processing logic
+  single place to look at when we need to understand processing logic
 * Having multiple events related to the same process consumed in quick
   succession (e.g. `ShipmentProcessStarted` event is immediately followed by
   `ManifestationAndDocumentsStarted` event) may cause concurrency issues -
@@ -273,7 +287,7 @@ http get http://localhost:43210/15916b8a-5d11-456f-9934-ed91c2bd82c0
   access the same shipment process event stream. This can lead to overlapping
   transactional boundaries in two consumers running at the same time.
   This example uses policy to publish events *after* they have been committed
-  to the event stream, but this can lead to another type of issuse.
+  to the event stream, but this can lead to another class of issues.
   "At least once" vs "at most once" message delivery policy is out of the scope
   of this example, but it should be considered carefully in a real application.
 
