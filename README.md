@@ -15,14 +15,14 @@ is to use a state machine. There may be a few concerns about that:
 Alternative approach to that is to use Event Sourcing, where each decision
 made in a process is explicitly recorded into the process' event stream.
 
-A process state is a simple fold of those events, and at any point the process
-manager needs to make a decision (based on some kind of a trigger - e.g. an
-external message or passage of time), we produce a new process decision event
-and add it to the process event stream.
+A process state is a simple fold of those events, and at any point when
+the process manager needs to make a decision (based on some kind of a trigger -
+e.g. an external message or passage of time), we produce a new process decision
+event and add it to the process event stream.
 
 Worth noting that the process decision events are just that - they are only
-records of a decision we made and no actual actions are taken by the process
-manager itself, it delegates this responsibility to other components
+records of decisions we made and no actual actions are taken by the process
+manager itself, it delegates these responsibilities to other components
 (typically that would be another aggregate).
 
 This solution explores an option of building event-sourced process manager
@@ -46,10 +46,9 @@ Key concepts:
 * *Shipment*: description of goods being sent, and information about what
   carriers we are using
 * *Shipment Leg*: an individual leg in a *Shipment* journey; defines what
-  carrier we are using, packages content / dimensions / weight (not covered in
-  this example), when shipment package(s) is expected to enter a
-  *Shipment Leg*'s carrier network, and *Shipper* / *Receiver* /
-  *Collection* details
+  carrier we are using for this leg, package(s) content / dimensions / weight
+  (not covered in this example), when shipment package(s) expected to enter the
+  carrier network, and *Shipper* / *Receiver* / *Collection* details
 * *Shipment Process Outcome*: if the process was successful, we expect to have
   tracking number(s) for each shipment leg, collection booking reference
   (if collection booking is required), and set of shipment documents
@@ -60,8 +59,8 @@ A business requirements may look like this:
   to worry about customs etc.); this defines what type of process will be used
 * For domestic shipments (it most likely will imply that shipment has a single
   leg)
-  * manifest shipment with carrier; at this point we will have a tracking number
-    allocated by the carrier
+  * manifest shipment with carrier; at this point we will have
+    tracking number(s) allocated by the carrier
   * generate PDF with all the labels customer would need to print and attach to
     package(s), and perhaps also include other relevant documents
   * book shipment collection with carrier (often this is a separate operation
@@ -86,7 +85,7 @@ A business requirements may look like this:
 Major process steps and the way how they are composed into a complete process
 is the responsibility of *Shipment Process* orchestrator,
 *Manifestation and Documents* and *Collection Booking* implement individual
-steps.
+steps functionality.
 
 ### Shipment Process
 
@@ -172,6 +171,9 @@ http post http://localhost:43210/{shipmentId}
 
 To emulate various aspects of the process, this solution uses shipment id:
 
+* Shipment process classification:
+  * guid starting with `1` triggers domestic process (`domestic-1.0`)
+  * otherwise international process (`international-1.0`) is used
 * Failures handling:
   * guid ending with `1` triggers process that fails at manifestation stage
   * guid ending with `2` triggers process that fails at collection booking stage
@@ -181,9 +183,6 @@ To emulate various aspects of the process, this solution uses shipment id:
     booking will complete successfully, so the overall process will transition
     from Failed to Completed
   * otherwise the process should complete successfully straight away
-* Shipment process classification:
-  * guid starting with `1` triggers domestic process (`domestic-1.0`)
-  * otherwise international process (`international-1.0`) is used
 
 Example:
 
@@ -320,7 +319,7 @@ http get http://localhost:43210/15916b8a-5d11-456f-9934-ed91c2bd82c0
   state. In this solution this was done for the sake of simplicity, but in a
   real application we may consider such a projection (view model), e.g. to
   optimize performance of "get current state representation to a user / admin"
-  operation
+  operation.
 * In this solution, process category that defines what process implementation
   is used, is supposed to stay the same for the lifetime of the process.
   In a real application we may need to consider switching an *existing* process
