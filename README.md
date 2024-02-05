@@ -7,7 +7,7 @@ is to use a state machine. There may be a few concerns about that:
 * If state machine persists its state to e.g. a SQL database and uses CRUD
   operations, it may be difficult to see how we got into a given state
 * If a business process is long-running, we may need to change the process
-  rules in the middle of a process (e.g. new legal regulation are introduced
+  rules in the middle of a process (e.g. new legal regulations are introduced
   that make pending process definition not valid anymore). This can make it
   difficult to switch from one state machine to another while keeping internal
   state consistent
@@ -54,7 +54,7 @@ Key concepts:
   (if collection booking is required), and set of shipment documents
 
 A business requirements may look like this:
-* Validate use input
+* Validate user input
 * Decide on what kind of shipment it is (domestic or internation, do we need
   to worry about customs etc.); this defines what type of process will be used
 * For domestic shipments (it most likely will imply that shipment has a single
