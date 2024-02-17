@@ -75,9 +75,6 @@ public class ShipmentProcessManager(
             trigger
         );
 
-        // FIXME: Workaround against concurrency exceptions
-        // await Task.Delay(TimeSpan.FromMilliseconds(100));
-
         var processCategory = (ShipmentProcessCategory)trigger.ProcessCategory;
         var process = processRegistry.GetByCategory(processCategory);
 

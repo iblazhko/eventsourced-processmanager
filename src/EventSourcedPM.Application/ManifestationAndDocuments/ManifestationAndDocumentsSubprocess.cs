@@ -196,9 +196,6 @@ public class ManifestationAndDocumentsSubprocess(
         Func<ManifestationAndDocumentsState, IEnumerable<BaseShipmentEvent>> action
     )
     {
-        // FIXME: Workaround against concurrency exceptions
-        // await Task.Delay(TimeSpan.FromMilliseconds(20));
-
         ManifestationAndDocumentsState manifestationAndDocumentsState = default;
         var newEvents = await manifestationAndDocumentsRepository.Upsert(
             shipmentId.ToEventStreamId(),
