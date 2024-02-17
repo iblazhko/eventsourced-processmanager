@@ -21,7 +21,7 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>
     private readonly List<EventWithMetadata> newEvents;
     private EventStreamVersion savedVersion;
 
-    private IEnumerable<EventWithMetadata> ConcatenatedEvents => savedEvents.Concat(newEvents);
+    private IEnumerable<EventWithMetadata> AllEvents => savedEvents.Concat(newEvents);
     private EventStreamVersion NewVersion => savedVersion + newEvents.Count;
 
     private bool isLocked;
@@ -76,7 +76,7 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>
     }
 
     public Task<EventStream> GetAllEvents() =>
-        Task.FromResult(new EventStream(streamId, NewVersion, ConcatenatedEvents.ToList()));
+        Task.FromResult(new EventStream(streamId, NewVersion, AllEvents.ToList()));
 
     public Task<EventStream> GetNewEvents() =>
         Task.FromResult(new EventStream(streamId, NewVersion, newEvents));
@@ -84,7 +84,7 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>
     public Task<TState> GetState(IEventStreamProjection<TState, TEvent> projection)
     {
         var seed = projection.GetInitialState(streamId);
-        var state = ConcatenatedEvents.Aggregate(
+        var state = AllEvents.Aggregate(
             seed,
             (s, e) => projection.Apply(s, (TEvent)e.Event)
         );
