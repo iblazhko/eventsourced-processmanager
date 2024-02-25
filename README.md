@@ -289,6 +289,8 @@ http get http://localhost:43210/15916b8a-5d11-456f-9934-ed91c2bd82c0
   to the event stream, but this can lead to another class of issues.
   "At least once" vs "at most once" message delivery policy is out of the scope
   of this example, but it should be considered carefully in a real application.
+  Using transactional Outbox and Inbox pattern in conjunction with the
+  event sourced process manager may help alleviate these issues.
 
 ### Aspects not covered in the solution but worth considering
 
@@ -331,3 +333,5 @@ http get http://localhost:43210/15916b8a-5d11-456f-9934-ed91c2bd82c0
 ## References
 
 1. <https://abdullin.com/post/ddd-evolving-business-processes-a-la-lokad/>
+2. <https://thinkbeforecoding.com/post/2021/12/17/functional-event-sourcing-decider>
+3. <https://blog.bittacklr.be/the-workflow-pattern.html>
