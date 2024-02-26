@@ -16,15 +16,9 @@ public interface ICollectionBookingDelegator
     );
 }
 
-public class CollectionBookingDelegator : ICollectionBookingDelegator
+public class CollectionBookingDelegator(IMessageBus messageBus) : ICollectionBookingDelegator
 {
-    private readonly IMessageBus messageBus;
-
-    // ReSharper disable once ConvertToPrimaryConstructor
-    public CollectionBookingDelegator(IMessageBus messageBus)
-    {
-        this.messageBus = messageBus;
-    }
+    private IMessageBus MessageBus { get; } = messageBus;
 
     public async Task DelegateDecision(
         CollectionBookingState collectionBookingState,
@@ -40,7 +34,7 @@ public class CollectionBookingDelegator : ICollectionBookingDelegator
                     typeof(CarrierIntegrationCommands.BookCollectionWithCarrier).FullName
                 );
 
-                await messageBus.SendCommand(
+                await MessageBus.SendCommand(
                     new CarrierIntegrationCommands.BookCollectionWithCarrier
                     {
                         ShipmentId = started.ShipmentId,

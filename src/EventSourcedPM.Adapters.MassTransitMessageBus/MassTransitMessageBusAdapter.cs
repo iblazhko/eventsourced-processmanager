@@ -5,17 +5,11 @@ using System.Threading.Tasks;
 using EventSourcedPM.Ports.MessageBus;
 using MassTransit;
 
-public class MassTransitMessageBusAdapter : IMessageBus
+public class MassTransitMessageBusAdapter(IBus bus) : IMessageBus
 {
-    private readonly IBus bus;
+    private IBus Bus { get; } = bus;
 
-    // ReSharper disable once ConvertToPrimaryConstructor
-    public MassTransitMessageBusAdapter(IBus bus)
-    {
-        this.bus = bus;
-    }
-
-    public Task PublishEvent(object evt) => bus.Publish(evt, evt.GetType());
+    public Task PublishEvent(object evt) => Bus.Publish(evt, evt.GetType());
 
     public async Task PublishEvents(IEnumerable<object> events)
     {

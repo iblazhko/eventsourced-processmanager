@@ -8,39 +8,26 @@ using System.Threading.Tasks;
 using EventSourcedPM.Ports.EventStore;
 using Marten;
 using Serilog;
-using EventStreamId = System.String;
-using EventStreamVersion = System.Int64;
+using EventStreamId = string;
+using EventStreamVersion = long;
 
-internal sealed class MartenDbEventStreamSession<TState, TEvent>
+internal sealed class MartenDbEventStreamSession<TState, TEvent>(
+    IDocumentStore documentStore,
+    IEventPublisher eventPublisher,
+    EventStreamId streamId)
     : IEventStreamSession<TState, TEvent>
 {
-    private readonly IEventPublisher eventPublisher;
-    private readonly IDocumentSession session;
-    private readonly EventStreamId streamId;
-    private readonly List<EventWithMetadata> savedEvents;
-    private readonly List<EventWithMetadata> newEvents;
-    private EventStreamVersion savedVersion;
+    private IEventPublisher EventPublisher { get; } = eventPublisher;
+    private IDocumentSession Session { get; } = documentStore.LightweightSession();
+    private EventStreamId StreamId { get; } = streamId;
+    private readonly List<EventWithMetadata> savedEvents = new();
+    private readonly List<EventWithMetadata> newEvents = new();
+    private EventStreamVersion savedVersion = 0;
 
     private IEnumerable<EventWithMetadata> AllEvents => savedEvents.Concat(newEvents);
     private EventStreamVersion NewVersion => savedVersion + newEvents.Count;
 
-    private bool isLocked;
-
-    // ReSharper disable once ConvertToPrimaryConstructor
-    public MartenDbEventStreamSession(
-        IDocumentStore documentStore,
-        IEventPublisher eventPublisher,
-        EventStreamId streamId
-    )
-    {
-        this.eventPublisher = eventPublisher;
-        session = documentStore.LightweightSession();
-        this.streamId = streamId;
-        savedEvents = new();
-        newEvents = new();
-        savedVersion = 0;
-        isLocked = false;
-    }
+    private bool isLocked = false;
 
     private IEnumerable<EventWithMetadata> MapFromMartenEvents(
         IReadOnlyList<Marten.Events.IEvent> mtEvents
@@ -49,12 +36,12 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>
     private void AssertSessionIsNotLocked()
     {
         if (isLocked)
-            throw new SessionIsLockedException(streamId);
+            throw new SessionIsLockedException(StreamId);
     }
 
     public async Task Open()
     {
-        var mtEvents = await session.Events.FetchStreamAsync(streamId);
+        var mtEvents = await Session.Events.FetchStreamAsync(StreamId);
 
         if (mtEvents?.Count > 0)
         {
@@ -63,11 +50,12 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>
             var incompatibleEvents = savedEvents
                 .Where(e => !EventTypeIsCompatible(e.Event))
                 .Select(e => e.GetType().FullName)
+                .Distinct()
                 .ToList();
             if (incompatibleEvents.Count > 0)
             {
                 throw new InvalidOperationException(
-                    $"Event stream {streamId} contains events not compatible with {typeof(TEvent).FullName}: {string.Join(", ", incompatibleEvents)}"
+                    $"Event stream {StreamId} contains events not compatible with {typeof(TEvent).FullName}: {string.Join(", ", incompatibleEvents)}"
                 );
             }
 
@@ -76,18 +64,15 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>
     }
 
     public Task<EventStream> GetAllEvents() =>
-        Task.FromResult(new EventStream(streamId, NewVersion, AllEvents.ToList()));
+        Task.FromResult(new EventStream(StreamId, NewVersion, AllEvents.ToList()));
 
     public Task<EventStream> GetNewEvents() =>
-        Task.FromResult(new EventStream(streamId, NewVersion, newEvents));
+        Task.FromResult(new EventStream(StreamId, NewVersion, newEvents));
 
     public Task<TState> GetState(IEventStreamProjection<TState, TEvent> projection)
     {
-        var seed = projection.GetInitialState(streamId);
-        var state = AllEvents.Aggregate(
-            seed,
-            (s, e) => projection.Apply(s, (TEvent)e.Event)
-        );
+        var seed = projection.GetInitialState(StreamId);
+        var state = AllEvents.Aggregate(seed, (s, e) => projection.Apply(s, (TEvent)e.Event));
 
         return Task.FromResult(state);
     }
@@ -122,32 +107,33 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>
 
     public async Task Save()
     {
-        Log.Debug("[EVENTSTORE] Save event stream {EventStreamId}", streamId);
+        Log.Debug("[EVENTSTORE] Save event stream {EventStreamId}", StreamId);
         if (newEvents.Count == 0)
             return;
 
         var incompatibleEvents = newEvents
             .Where(e => !EventTypeIsCompatible(e.Event))
             .Select(e => e.GetType().FullName)
+            .Distinct()
             .ToList();
         if (incompatibleEvents.Count > 0)
         {
             throw new InvalidOperationException(
-                $"Event stream {streamId} session contains events not compatible with {typeof(TEvent).FullName}: {string.Join(", ", incompatibleEvents)}"
+                $"Event stream {StreamId} session contains events not compatible with {typeof(TEvent).FullName}: {string.Join(", ", incompatibleEvents)}"
             );
         }
 
         var mtEvents = newEvents.Select(e => e.Event);
         _ = savedVersion switch
         {
-            0 => session.Events.StartStream(streamId, mtEvents),
-            _ => session.Events.Append(streamId, mtEvents)
+            0 => Session.Events.StartStream(StreamId, mtEvents),
+            _ => Session.Events.Append(StreamId, mtEvents)
         };
 
-        await session.SaveChangesAsync();
+        await Session.SaveChangesAsync();
         Lock();
 
-        await eventPublisher.Publish(newEvents);
+        await EventPublisher.Publish(newEvents);
     }
 
     public void Lock()
@@ -157,36 +143,32 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>
 
     public void Dispose()
     {
-        session?.Dispose();
+        Session?.Dispose();
     }
 
     public ValueTask DisposeAsync()
     {
-        return session?.DisposeAsync() ?? ValueTask.CompletedTask;
+        return Session?.DisposeAsync() ?? ValueTask.CompletedTask;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool EventTypeIsCompatible(object evt) => evt.GetType().IsAssignableTo(typeof(TEvent));
 }
 
-public sealed class MartenDbEventStoreAdapter<TState, TEvent> : IEventStore<TState, TEvent>
+public sealed class MartenDbEventStoreAdapter<TState, TEvent>(
+    IDocumentStore documentStore,
+    IEventPublisher eventPublisher)
+    : IEventStore<TState, TEvent>
 {
-    private readonly IDocumentStore documentStore;
-    private readonly IEventPublisher eventPublisher;
-
-    // ReSharper disable once ConvertToPrimaryConstructor
-    public MartenDbEventStoreAdapter(IDocumentStore documentStore, IEventPublisher eventPublisher)
-    {
-        this.documentStore = documentStore;
-        this.eventPublisher = eventPublisher;
-    }
+    private IDocumentStore DocumentStore { get; } = documentStore;
+    private IEventPublisher EventPublisher { get; } = eventPublisher;
 
     public async Task<IEventStreamSession<TState, TEvent>> Open(string streamId)
     {
         Log.Debug("[EVENTSTORE] Open event stream {EventStreamId}", streamId);
         var mtSession = new MartenDbEventStreamSession<TState, TEvent>(
-            documentStore,
-            eventPublisher,
+            DocumentStore,
+            EventPublisher,
             streamId
         );
         await mtSession.Open();
