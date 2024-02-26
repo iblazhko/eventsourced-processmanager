@@ -55,7 +55,7 @@ Key concepts:
 
 A business requirements may look like this:
 * Validate user input
-* Decide on what kind of shipment it is (domestic or internation, do we need
+* Decide on what kind of shipment it is (domestic or international, do we need
   to worry about customs etc.); this defines what type of process will be used
 * For domestic shipments (it most likely will imply that shipment has a single
   leg)
@@ -79,8 +79,8 @@ A business requirements may look like this:
 * *Carrier Integration* - component that uses carrier APIs to manifest shipment
   or book shipment collection, using carrier-specific APIs. This solution is not
   focusing on the carrier integration aspect, we assume that this is implemented
-  in an external system we can communicate with using messages, and the solution
-  uses a simple stub representing that external system.
+  in a supporting bounded context we can communicate with using messages, and
+  the solution uses a simple stub representing that supporting bounded context.
 
 Major process steps and the way how they are composed into a complete process
 is the responsibility of *Shipment Process* orchestrator,
@@ -137,7 +137,7 @@ shipment manifestation is a single operation.
 
 Manifestation implementation, i.e. calling carrier APIs is delegated to
 *Carrier Integration*, but we have internal representation of those events
-stored in *Process Manager* event stream.
+stored in *Manifestation and Documents* event stream.
 
 ### Collection Booking
 
@@ -149,7 +149,7 @@ example).
 
 Collection booking implementation, i.e. calling carrier APIs is delegated to
 *Carrier Integration*, but we have internal representation of those events
-stored in *Process Manager* event stream.
+stored in *Collection Booking* event stream.
 
 ## Running the Solution
 
@@ -295,9 +295,11 @@ http get http://localhost:43210/15916b8a-5d11-456f-9934-ed91c2bd82c0
 ### Aspects not covered in the solution but worth considering
 
 * This example does not implement guards against a case when trigger events are
-  not applicable for current process state (although code has an example of
-  how it can be implemented). This is not trivial, a real process definition may
-  need to allow restarts of some stages, e.g. to re-generate documents.
+  not applicable for current process state (although there is a
+  [comment](https://github.com/iblazhko/eventsourced-processmanager/blob/main/src/EventSourcedPM.Application/Orchestration/Processes/InternationaShipmentProcessV1.cs#L18-L90)
+  describing how it can be implemented). This is not trivial, a real process
+  definition may need to allow restarts of some stages, e.g. to
+  re-generate documents.
 * This example does not implement steps timeout. If e.g. manifestation command
   failed in *Carrier Integration* but we have not received failure event in
   *Shipment Process* orchestrator, process will stop indefinitely.

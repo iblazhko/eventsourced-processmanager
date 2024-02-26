@@ -16,7 +16,11 @@ public class InternationalShipmentProcessV1 : IShipmentProcess
     public ShipmentProcessCategory Category => ShipmentProcessCategory;
 
     /*
-     Example of making process decision based on current process state
+    TODO: Add checks to see if the incoming trigger is applicable for the current state
+
+    Example of making process decision based on current process state:
+
+    1) define state-specific deciders:
 
     private static readonly Dictionary<
         ShipmentProcessState,
@@ -78,19 +82,17 @@ public class InternationalShipmentProcessV1 : IShipmentProcess
                    trigger.GetType().FullName,
                    shipmentProcessState.ProcessState
                );
+
+    2) then, in MakeDecision use it like this:
+        DecideFrom.TryGetValue(shipmentProcessState.ProcessState, out var decideFrom)
+          ? decideFrom(shipmentProcessState, trigger)
+          : throw new TriggerEventNotSupportedForStateException(trigger.GetType().FullName, shipmentProcessState.ProcessState);
     */
 
     public IEnumerable<BaseShipmentProcessEvent> MakeDecision(
         ShipmentProcessState shipmentProcessState,
         ShipmentProcessTrigger trigger
     ) =>
-        // TODO: Add checks to see if the incoming trigger is applicable for the current state
-        // Could be done like this:
-        // DecideFrom.TryGetValue(shipmentProcessState.ProcessState, out var decideFrom)
-        //   ? decideFrom(shipmentProcessState, trigger)
-        //   : throw new TriggerEventNotSupportedForStateException(trigger.GetType().FullName, shipmentProcessState.ProcessState);
-        // (see DecideFrom above)
-
         trigger.Match(
             processEvent =>
                 processEvent switch
