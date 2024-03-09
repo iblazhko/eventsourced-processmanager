@@ -55,5 +55,5 @@ public class UnknownEventTypeException(string typeName)
 public class SessionIsLockedException(EventStreamId streamId)
     : Exception($"Session is locked for modifications for stream {streamId}");
 
-public class ConcurrencyException(EventStreamId streamId)
-    : Exception($"Concurrency exception while saving stream {streamId}");
+public class ConcurrencyException(EventStreamId streamId, Exception innerException)
+    : Exception($"Concurrency exception while saving stream {streamId}", innerException);

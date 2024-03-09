@@ -130,10 +130,17 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>(
             _ => Session.Events.Append(StreamId, mtEvents)
         };
 
-        await Session.SaveChangesAsync();
-        Lock();
+        try
+        {
+            await Session.SaveChangesAsync();
+            Lock();
 
-        await EventPublisher.Publish(newEvents);
+            await EventPublisher.Publish(newEvents);
+        }
+        catch (Marten.Exceptions.EventStreamUnexpectedMaxEventIdException e)
+        {
+            throw new ConcurrencyException(StreamId, e);
+        }
     }
 
     public void Lock()
