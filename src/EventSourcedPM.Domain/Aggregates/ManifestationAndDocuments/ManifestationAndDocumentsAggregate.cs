@@ -82,8 +82,8 @@ public static class ManifestationAndDocumentsAggregate
         ManifestedShipmentLeg[] manifestedLegs
     )
     {
-        var legsToBeManifested = legs.Where(
-                l => manifestedLegs.All(m => m.CarrierId != l.CarrierId)
+        var legsToBeManifested = legs.Where(l =>
+                manifestedLegs.All(m => m.CarrierId != l.CarrierId)
             )
             .ToList();
         return

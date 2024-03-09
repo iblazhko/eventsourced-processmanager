@@ -24,7 +24,7 @@ public static partial class DecideThat
             new ManifestationAndDocumentsCompleted
             {
                 ProcessCategory = trigger.ProcessCategory,
-                ShipmentId =  trigger.ShipmentId,
+                ShipmentId = trigger.ShipmentId,
                 Delegated = true
             }
         ];

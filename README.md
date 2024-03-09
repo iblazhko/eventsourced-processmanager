@@ -248,6 +248,35 @@ http get http://localhost:43210/15916b8a-5d11-456f-9934-ed91c2bd82c0
 }
 ```
 
+### Load Test
+
+To see how the system behaves under load, we can inject large number of
+shipments using following command (adjust number of workers, shipments,
+and delay as needed):
+
+```powershell
+./load_test.ps1 -WorkersCount 10 -WorkerShipmentsCount 1000 -WorkerDelayMilliseconds 50
+```
+
+This example starts 10 workers in parallel, each worker will trigger 1000
+shipment processes waiting 50ms between operations.
+
+Monitor RabbitMQ queues `http://localhost:15672/#/queues` to see the progress.
+
+Local run shows that application is processing messages at rate
+~150messages/sec, application container memory consumption jumps to aroung 10GB
+and stays at that level; main bottleneck seems to be the application itself,
+RabbitMQ and Postgres container consume much less CPU and memory. Once all the
+messages are processed, there are ~300K events in `mt_events` table.
+
+> **Note**: Code in this example is not optimised for performance.
+> In a real deployment we could consider splitting API and Application hosts,
+> and running multiple instances of Application host to allow messages to be
+> processed in parallel; parallelization is already implemented to some extent
+> by ussing MassTransit parallel message handling (see `PrefetchCount` and
+> `ConcurrentMessageLimit` in `MassTransitConfigurator`, but having multiple
+> independent instances of the Application host would help improving
+> performance. Also Postgres instance may need tuning / scaling up.
 
 ## Conclusions
 
