@@ -5,6 +5,7 @@ services:
 
   postgres:
     image: postgres:16.1
+    command: postgres -c 'max_connections=1000'
     volumes:
       - postgres-data:/var/lib/postgresql
     ports:
@@ -30,16 +31,16 @@ services:
     networks:
       - devnet
 
-  ## Main Application
+  ## Main Application - 3 replicas
 
-  app:
+  app1:
     depends_on:
       - rabbitmq
     build:
       context: ./src/EventSourcedPM
       dockerfile: eventsourced-pm.Dockerfile
     environment:
-      - EventSourcedPM__ApiBaseUrl=http://*:43210
+      - EventSourcedPM__ApiBaseUrl=http://*:43211
       - EventSourcedPM__Postgres__Endpoint__Host=postgres
       - EventSourcedPM__Postgres__Username=admin
       - EventSourcedPM__Postgres__Password=changeit
@@ -49,6 +50,64 @@ services:
       - EventSourcedPM__RabbitMq__Password=changeit
       - EventSourcedPM__RabbitMq__VHost=espm
       - EventSourcedPM__WaitForInfrastructureOnStartup=true
+    ports:
+      - "43211:43211"
+    networks:
+      - devnet
+
+  app2:
+    depends_on:
+      - rabbitmq
+    build:
+      context: ./src/EventSourcedPM
+      dockerfile: eventsourced-pm.Dockerfile
+    environment:
+      - EventSourcedPM__ApiBaseUrl=http://*:43212
+      - EventSourcedPM__Postgres__Endpoint__Host=postgres
+      - EventSourcedPM__Postgres__Username=admin
+      - EventSourcedPM__Postgres__Password=changeit
+      - EventSourcedPM__Postgres__Database=espm
+      - EventSourcedPM__RabbitMq__Endpoint__Host=rabbitmq
+      - EventSourcedPM__RabbitMq__Username=admin
+      - EventSourcedPM__RabbitMq__Password=changeit
+      - EventSourcedPM__RabbitMq__VHost=espm
+      - EventSourcedPM__WaitForInfrastructureOnStartup=true
+    ports:
+      - "43212:43212"
+    networks:
+      - devnet
+
+  app3:
+    depends_on:
+      - rabbitmq
+    build:
+      context: ./src/EventSourcedPM
+      dockerfile: eventsourced-pm.Dockerfile
+    environment:
+      - EventSourcedPM__ApiBaseUrl=http://*:43213
+      - EventSourcedPM__Postgres__Endpoint__Host=postgres
+      - EventSourcedPM__Postgres__Username=admin
+      - EventSourcedPM__Postgres__Password=changeit
+      - EventSourcedPM__Postgres__Database=espm
+      - EventSourcedPM__RabbitMq__Endpoint__Host=rabbitmq
+      - EventSourcedPM__RabbitMq__Username=admin
+      - EventSourcedPM__RabbitMq__Password=changeit
+      - EventSourcedPM__RabbitMq__VHost=espm
+      - EventSourcedPM__WaitForInfrastructureOnStartup=true
+    ports:
+      - "43213:43213"
+    networks:
+      - devnet
+
+## NGINX load balancer
+  proxy:
+    depends_on:
+      - app1
+      - app2
+      - app3
+    build:
+      context: ./proxy
+      dockerfile: proxy.Dockerfile
     ports:
       - "43210:43210"
     networks:
