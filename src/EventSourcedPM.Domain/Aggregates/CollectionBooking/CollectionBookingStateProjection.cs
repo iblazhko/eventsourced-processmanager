@@ -9,7 +9,7 @@ using EventSourcedPM.Ports.EventStore;
 public class CollectionBookingStateProjection
     : IEventStreamProjection<CollectionBookingState, BaseCollectionBookingEvent>
 {
-    public CollectionBookingState GetInitialState(string streamId) =>
+    public CollectionBookingState GetInitialState(EventStreamId streamId) =>
         new(default, default, default, default, default, default);
 
     public CollectionBookingState Apply(

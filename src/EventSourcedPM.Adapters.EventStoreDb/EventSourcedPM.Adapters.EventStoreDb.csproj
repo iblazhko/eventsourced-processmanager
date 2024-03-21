@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\EventSourcedPM.Ports.EventStore\EventSourcedPM.Ports.EventStore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EventStore.Client.Grpc" />
+    <PackageReference Include="EventStore.Client.Grpc.Streams" />
+    <PackageReference Include="LanguageExt.Core" />
+    <PackageReference Include="Serilog" />
+  </ItemGroup>
+
+</Project>

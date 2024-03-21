@@ -3,6 +3,29 @@ namespace EventSourcedPM.Configuration;
 using System;
 using System.Text;
 
+public class EventStoreSettings
+{
+    public EndpointSettings Endpoint { get; set; }
+    public string Username { get; set; }
+    public string Password { get; set; }
+    public string ConnectionOptions { get; set; }
+
+    private string GetConnectionOptions()
+        => string.IsNullOrEmpty(ConnectionOptions) ? string.Empty : $"?{ConnectionOptions}";
+    public string GetConnectionString()
+        => $"{Endpoint?.Scheme}://{Username}:{Password}@{Endpoint?.Host}:{Endpoint?.Port}{GetConnectionOptions()}";
+    public bool HealthCheck { get; set; }
+
+    public override string ToString() =>
+        new StringBuilder()
+            .AppendSettingValue(() => HealthCheck)
+            .AppendSettingValue(() => Endpoint.Host)
+            .AppendSettingValue(() => Endpoint.Port)
+            .AppendSettingValue(() => Username)
+            .AppendSettingValue(() => ConnectionOptions)
+            .ToString();
+}
+
 public class PostgresSettings
 {
     public EndpointSettings Endpoint { get; set; }

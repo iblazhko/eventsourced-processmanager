@@ -3,8 +3,8 @@ namespace EventSourcedPM.Ports.EventStore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using EventStreamId = string;
 
 public class EventSourcedRepository<TState, TEvent>(IEventStore<TState, TEvent> eventStore)
 {
@@ -12,11 +12,13 @@ public class EventSourcedRepository<TState, TEvent>(IEventStore<TState, TEvent> 
 
     public async Task<TState> Read(
         EventStreamId streamId,
-        IEventStreamProjection<TState, TEvent> stateProjection
+        IEventStreamProjection<TState, TEvent> stateProjection,
+        TimeSpan deadline = default,
+        CancellationToken cancellationToken = default
     )
     {
-        await using var session = await EventStore.Open(streamId);
-        var state = await session.GetState(stateProjection);
+        await using var session = EventStore.Open(streamId);
+        var state = await session.GetState(stateProjection, deadline, cancellationToken);
 
         return state;
     }
@@ -24,16 +26,18 @@ public class EventSourcedRepository<TState, TEvent>(IEventStore<TState, TEvent> 
     public async Task<IEnumerable<TEvent>> Upsert(
         EventStreamId streamId,
         IEventStreamProjection<TState, TEvent> stateProjection,
-        Func<TState, IEnumerable<TEvent>> action
+        Func<TState, IEnumerable<TEvent>> action,
+        TimeSpan deadline = default,
+        CancellationToken cancellationToken = default
     )
     {
-        await using var session = await EventStore.Open(streamId);
-        var state = await session.GetState(stateProjection);
+        await using var session = EventStore.Open(streamId);
+        var state = await session.GetState(stateProjection, deadline, cancellationToken);
         var newEvents = (action(state) ?? Enumerable.Empty<TEvent>()).ToList();
         if (newEvents.Count > 0)
         {
-            await session.AppendEvents(newEvents.Cast<object>().AsEnumerable());
-            await session.Save();
+            session.AppendEvents(newEvents.Cast<object>().AsEnumerable());
+            await session.Save(deadline, cancellationToken);
         }
 
         return newEvents;

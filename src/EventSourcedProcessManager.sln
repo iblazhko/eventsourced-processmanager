@@ -38,6 +38,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcedPM.Adapters.Mas
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcedPM.Adapter.CarrierIntegrationStub", "EventSourcedPM.Adapter.CarrierIntegrationStub\EventSourcedPM.Adapter.CarrierIntegrationStub.csproj", "{728ADE63-3156-4F93-A293-A6BE1F908F6C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcedPM.Adapters.EventStoreDb", "EventSourcedPM.Adapters.EventStoreDb\EventSourcedPM.Adapters.EventStoreDb.csproj", "{7887C03E-9BA6-4398-8658-17C179ADBFA0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -92,6 +94,10 @@ Global
 		{728ADE63-3156-4F93-A293-A6BE1F908F6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{728ADE63-3156-4F93-A293-A6BE1F908F6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{728ADE63-3156-4F93-A293-A6BE1F908F6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7887C03E-9BA6-4398-8658-17C179ADBFA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7887C03E-9BA6-4398-8658-17C179ADBFA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7887C03E-9BA6-4398-8658-17C179ADBFA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7887C03E-9BA6-4398-8658-17C179ADBFA0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{CF343AC7-78A9-49E3-A30F-3FC83823E855} = {8EDE8463-45B5-4979-B142-B41D084FEE50}
@@ -101,5 +107,6 @@ Global
 		{383ED220-1E59-4F01-8FC8-3D0DF11EBB42} = {8EDE8463-45B5-4979-B142-B41D084FEE50}
 		{009C3371-2DAA-4C17-85F1-175296869937} = {8EDE8463-45B5-4979-B142-B41D084FEE50}
 		{728ADE63-3156-4F93-A293-A6BE1F908F6C} = {8EDE8463-45B5-4979-B142-B41D084FEE50}
+		{7887C03E-9BA6-4398-8658-17C179ADBFA0} = {8EDE8463-45B5-4979-B142-B41D084FEE50}
 	EndGlobalSection
 EndGlobal

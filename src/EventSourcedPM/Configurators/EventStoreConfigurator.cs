@@ -1,5 +1,6 @@
 namespace EventSourcedPM.Configurators;
 
+using EventSourcedPM.Adapters.EventStoreDb;
 using EventSourcedPM.Adapters.MartenDbEventStore;
 using EventSourcedPM.Adapters.MassTransitEventStorePublisher;
 using EventSourcedPM.Configuration;
@@ -10,6 +11,7 @@ using EventSourcedPM.Messaging.CollectionBooking.Events;
 using EventSourcedPM.Messaging.ManifestationAndDocuments.Events;
 using EventSourcedPM.Messaging.Orchestration.Events;
 using EventSourcedPM.Ports.EventStore;
+using EventStore.Client;
 using Marten;
 using Marten.Events;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +24,10 @@ public static class EventStoreConfigurator
         ShipmentProcessSettings settings
     )
     {
+        var eventStoreClientSettings = EventStoreClientSettings.Create(settings.EventStore.GetConnectionString());
+        eventStoreClientSettings.ConnectionName = nameof(EventSourcedPM);
+        services.AddSingleton(new EventStoreClient(eventStoreClientSettings));
+
         services
             .AddMarten(options =>
             {
@@ -40,7 +46,7 @@ public static class EventStoreConfigurator
 
         services.AddSingleton<
             IEventStore<ShipmentProcessState, BaseShipmentProcessEvent>,
-            MartenDbEventStoreAdapter<ShipmentProcessState, BaseShipmentProcessEvent>
+            EventStoreDbAdapter<ShipmentProcessState, BaseShipmentProcessEvent>
         >();
         services.AddSingleton<
             IEventStreamProjection<ShipmentProcessState, BaseShipmentProcessEvent>,
@@ -52,7 +58,7 @@ public static class EventStoreConfigurator
 
         services.AddSingleton<
             IEventStore<ManifestationAndDocumentsState, BaseShipmentEvent>,
-            MartenDbEventStoreAdapter<ManifestationAndDocumentsState, BaseShipmentEvent>
+            EventStoreDbAdapter<ManifestationAndDocumentsState, BaseShipmentEvent>
         >();
         services.AddSingleton<
             IEventStreamProjection<ManifestationAndDocumentsState, BaseShipmentEvent>,
@@ -64,7 +70,7 @@ public static class EventStoreConfigurator
 
         services.AddSingleton<
             IEventStore<CollectionBookingState, BaseCollectionBookingEvent>,
-            MartenDbEventStoreAdapter<CollectionBookingState, BaseCollectionBookingEvent>
+            EventStoreDbAdapter<CollectionBookingState, BaseCollectionBookingEvent>
         >();
         services.AddSingleton<
             IEventStreamProjection<CollectionBookingState, BaseCollectionBookingEvent>,

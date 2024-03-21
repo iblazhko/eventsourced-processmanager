@@ -4,12 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using EventSourcedPM.Ports.EventStore;
 using Marten;
 using Serilog;
-using EventStreamId = string;
-using EventStreamVersion = long;
 
 internal sealed class MartenDbEventStreamSession<TState, TEvent>(
     IDocumentStore documentStore,
@@ -20,14 +19,14 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>(
     private IEventPublisher EventPublisher { get; } = eventPublisher;
     private IDocumentSession Session { get; } = documentStore.LightweightSession();
     private EventStreamId StreamId { get; } = streamId;
-    private readonly List<EventWithMetadata> savedEvents = new();
+    private readonly List<EventWithMetadata> storedEvents = new();
     private readonly List<EventWithMetadata> newEvents = new();
-    private EventStreamVersion savedVersion = 0;
+    private EventStreamVersion storedRevision = 0;
 
-    private IEnumerable<EventWithMetadata> AllEvents => savedEvents.Concat(newEvents);
-    private EventStreamVersion NewVersion => savedVersion + newEvents.Count;
+    private IEnumerable<EventWithMetadata> AllEvents => storedEvents.Concat(newEvents);
+    private EventStreamVersion Revision => storedRevision + newEvents.Count;
 
-    private bool isLocked = false;
+    private bool isLocked;
 
     private IEnumerable<EventWithMetadata> MapFromMartenEvents(
         IReadOnlyList<Marten.Events.IEvent> mtEvents
@@ -39,15 +38,18 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>(
             throw new SessionIsLockedException(StreamId);
     }
 
-    public async Task Open()
+    private async Task ReadStoredEvents(CancellationToken cancellationToken)
     {
-        var mtEvents = await Session.Events.FetchStreamAsync(StreamId);
+        Log.Debug("[EVENTSTORE] Open event stream {EventStreamId}", StreamId);
 
+        var mtEvents = await Session.Events.FetchStreamAsync(StreamId, token: cancellationToken);
+
+        // ReSharper disable once ConstantConditionalAccessQualifier
         if (mtEvents?.Count > 0)
         {
-            savedEvents.AddRange(MapFromMartenEvents(mtEvents));
+            storedEvents.AddRange(MapFromMartenEvents(mtEvents));
 
-            var incompatibleEvents = savedEvents
+            var incompatibleEvents = storedEvents
                 .Where(e => !EventTypeIsCompatible(e.Event))
                 .Select(e => e.GetType().FullName)
                 .Distinct()
@@ -59,25 +61,38 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>(
                 );
             }
 
-            savedVersion = mtEvents[^1].Version;
+            storedRevision = mtEvents[^1].Version;
         }
     }
 
-    public Task<EventStream> GetAllEvents() =>
-        Task.FromResult(new EventStream(StreamId, NewVersion, AllEvents.ToList()));
-
-    public Task<EventStream> GetNewEvents() =>
-        Task.FromResult(new EventStream(StreamId, NewVersion, newEvents));
-
-    public Task<TState> GetState(IEventStreamProjection<TState, TEvent> projection)
+    public async Task<EventStream> GetAllEvents(
+        TimeSpan deadline = default,
+        CancellationToken cancellationToken = default
+    )
     {
+        if (storedEvents.Count == 0)
+            await ReadStoredEvents(cancellationToken);
+        return new EventStream(StreamId, Revision, AllEvents.ToList());
+    }
+
+    public EventStream GetNewEvents() => new(StreamId, Revision, newEvents);
+
+    public async Task<TState> GetState(
+        IEventStreamProjection<TState, TEvent> projection,
+        TimeSpan deadline = default,
+        CancellationToken cancellationToken = default
+    )
+    {
+        if (storedEvents.Count == 0)
+            await ReadStoredEvents(cancellationToken);
+
         var seed = projection.GetInitialState(StreamId);
         var state = AllEvents.Aggregate(seed, (s, e) => projection.Apply(s, (TEvent)e.Event));
 
-        return Task.FromResult(state);
+        return state;
     }
 
-    public Task AppendEvents(IEnumerable<object> events)
+    public void AppendEvents(IEnumerable<object> events)
     {
         AssertSessionIsNotLocked();
         newEvents.AddRange(
@@ -91,21 +106,20 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>(
                         )
                 ) ?? Enumerable.Empty<EventWithMetadata>()
         );
-
-        return Task.CompletedTask;
     }
 
-    public Task AppendEvents(IEnumerable<EventWithMetadata> events)
+    public void AppendEvents(IEnumerable<EventWithMetadata> events)
     {
         AssertSessionIsNotLocked();
         newEvents.AddRange(
             events?.Where(e => e is { Event: not null }) ?? Enumerable.Empty<EventWithMetadata>()
         );
-
-        return Task.CompletedTask;
     }
 
-    public async Task Save()
+    public async Task Save(
+        TimeSpan deadline = default,
+        CancellationToken cancellationToken = default
+    )
     {
         Log.Debug("[EVENTSTORE] Save event stream {EventStreamId}", StreamId);
         if (newEvents.Count == 0)
@@ -124,7 +138,7 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>(
         }
 
         var mtEvents = newEvents.Select(e => e.Event);
-        _ = savedVersion switch
+        _ = (long)storedRevision switch
         {
             0 => Session.Events.StartStream(StreamId, mtEvents),
             _ => Session.Events.Append(StreamId, mtEvents)
@@ -132,10 +146,10 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>(
 
         try
         {
-            await Session.SaveChangesAsync();
+            await Session.SaveChangesAsync(cancellationToken);
             Lock();
 
-            await EventPublisher.Publish(newEvents);
+            await EventPublisher.Publish(newEvents, cancellationToken);
         }
         catch (Marten.Exceptions.EventStreamUnexpectedMaxEventIdException e)
         {
@@ -170,25 +184,18 @@ public sealed class MartenDbEventStoreAdapter<TState, TEvent>(
     private IDocumentStore DocumentStore { get; } = documentStore;
     private IEventPublisher EventPublisher { get; } = eventPublisher;
 
-    public async Task<IEventStreamSession<TState, TEvent>> Open(string streamId)
-    {
-        Log.Debug("[EVENTSTORE] Open event stream {EventStreamId}", streamId);
-        var mtSession = new MartenDbEventStreamSession<TState, TEvent>(
-            DocumentStore,
-            EventPublisher,
-            streamId
-        );
-        await mtSession.Open();
-
-        return mtSession;
-    }
+    public IEventStreamSession<TState, TEvent> Open(EventStreamId streamId) =>
+        new MartenDbEventStreamSession<TState, TEvent>(DocumentStore, EventPublisher, streamId);
 
     public Task Delete(EventStreamId streamId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> Contains(EventStreamId streamId)
+    public Task<bool> Contains(
+        EventStreamId streamId,
+        CancellationToken cancellationToken = default
+    )
     {
         throw new NotImplementedException();
     }

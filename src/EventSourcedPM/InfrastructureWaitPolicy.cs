@@ -27,6 +27,11 @@ public static class InfrastructureWaitPolicy
         var infrastructureServicesAvailability = new[]
         {
             GetServiceAvailability(
+                nameof(settings.EventStore),
+                settings.EventStore.Endpoint.Host,
+                settings.EventStore.Endpoint.Port
+            ),
+            GetServiceAvailability(
                 nameof(settings.Postgres),
                 settings.Postgres.Endpoint.Host,
                 settings.Postgres.Endpoint.Port
