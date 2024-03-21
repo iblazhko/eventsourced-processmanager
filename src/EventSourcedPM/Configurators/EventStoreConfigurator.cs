@@ -7,6 +7,7 @@ using EventSourcedPM.Configuration;
 using EventSourcedPM.Domain.Aggregates.CollectionBooking;
 using EventSourcedPM.Domain.Aggregates.ManifestationAndDocuments;
 using EventSourcedPM.Domain.Aggregates.Orchestration;
+using EventSourcedPM.Messaging;
 using EventSourcedPM.Messaging.CollectionBooking.Events;
 using EventSourcedPM.Messaging.ManifestationAndDocuments.Events;
 using EventSourcedPM.Messaging.Orchestration.Events;
@@ -24,7 +25,9 @@ public static class EventStoreConfigurator
         ShipmentProcessSettings settings
     )
     {
-        var eventStoreClientSettings = EventStoreClientSettings.Create(settings.EventStore.GetConnectionString());
+        var eventStoreClientSettings = EventStoreClientSettings.Create(
+            settings.EventStore.GetConnectionString()
+        );
         eventStoreClientSettings.ConnectionName = nameof(EventSourcedPM);
         services.AddSingleton(new EventStoreClient(eventStoreClientSettings));
 
@@ -44,10 +47,45 @@ public static class EventStoreConfigurator
 
         services.AddSingleton<IEventPublisher, MassTransitEventStorePublisherAdapter>();
 
-        services.AddSingleton<
-            IEventStore<ShipmentProcessState, BaseShipmentProcessEvent>,
-            EventStoreDbAdapter<ShipmentProcessState, BaseShipmentProcessEvent>
-        >();
+        switch (settings.EventStoreAdapter)
+        {
+            case "EventStoreDB":
+                services.AddSingleton<
+                    IEventTypeResolver,
+                    EventTypeResolver<BaseShipmentWithProcessCategoryEvent>
+                >();
+                services.AddSingleton<IEventSerializer, EventJsonSerializer>();
+
+                services.AddSingleton<
+                    IEventStore<ShipmentProcessState, BaseShipmentProcessEvent>,
+                    EventStoreDbAdapter<ShipmentProcessState, BaseShipmentProcessEvent>
+                >();
+                services.AddSingleton<
+                    IEventStore<ManifestationAndDocumentsState, BaseShipmentEvent>,
+                    EventStoreDbAdapter<ManifestationAndDocumentsState, BaseShipmentEvent>
+                >();
+                services.AddSingleton<
+                    IEventStore<CollectionBookingState, BaseCollectionBookingEvent>,
+                    EventStoreDbAdapter<CollectionBookingState, BaseCollectionBookingEvent>
+                >();
+                break;
+
+            default:
+                services.AddSingleton<
+                    IEventStore<ShipmentProcessState, BaseShipmentProcessEvent>,
+                    MartenDbEventStoreAdapter<ShipmentProcessState, BaseShipmentProcessEvent>
+                >();
+                services.AddSingleton<
+                    IEventStore<ManifestationAndDocumentsState, BaseShipmentEvent>,
+                    MartenDbEventStoreAdapter<ManifestationAndDocumentsState, BaseShipmentEvent>
+                >();
+                services.AddSingleton<
+                    IEventStore<CollectionBookingState, BaseCollectionBookingEvent>,
+                    MartenDbEventStoreAdapter<CollectionBookingState, BaseCollectionBookingEvent>
+                >();
+                break;
+        }
+
         services.AddSingleton<
             IEventStreamProjection<ShipmentProcessState, BaseShipmentProcessEvent>,
             ShipmentProcessStateProjection
@@ -57,10 +95,6 @@ public static class EventStoreConfigurator
         >();
 
         services.AddSingleton<
-            IEventStore<ManifestationAndDocumentsState, BaseShipmentEvent>,
-            EventStoreDbAdapter<ManifestationAndDocumentsState, BaseShipmentEvent>
-        >();
-        services.AddSingleton<
             IEventStreamProjection<ManifestationAndDocumentsState, BaseShipmentEvent>,
             ManifestationAndDocumentsStateProjection
         >();
@@ -68,10 +102,6 @@ public static class EventStoreConfigurator
             EventSourcedRepository<ManifestationAndDocumentsState, BaseShipmentEvent>
         >();
 
-        services.AddSingleton<
-            IEventStore<CollectionBookingState, BaseCollectionBookingEvent>,
-            EventStoreDbAdapter<CollectionBookingState, BaseCollectionBookingEvent>
-        >();
         services.AddSingleton<
             IEventStreamProjection<CollectionBookingState, BaseCollectionBookingEvent>,
             CollectionBookingStateProjection
