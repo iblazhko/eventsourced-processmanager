@@ -1,3 +1,5 @@
+#!/usr/bin/env pwsh
+
 param(
     [int]$WorkersCount,
     [int]$WorkerShipmentsCount,

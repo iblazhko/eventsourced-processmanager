@@ -9,7 +9,7 @@ using EventSourcedPM.Ports.EventStore;
 public class ManifestationAndDocumentsStateProjection
     : IEventStreamProjection<ManifestationAndDocumentsState, BaseShipmentEvent>
 {
-    public ManifestationAndDocumentsState GetInitialState(string streamId) =>
+    public ManifestationAndDocumentsState GetInitialState(EventStreamId streamId) =>
         new(
             default,
             default,

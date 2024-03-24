@@ -10,7 +10,7 @@ using EventSourcedPM.Ports.EventStore;
 public class ShipmentProcessStateProjection
     : IEventStreamProjection<ShipmentProcessState, BaseShipmentProcessEvent>
 {
-    public ShipmentProcessState GetInitialState(string streamId) =>
+    public ShipmentProcessState GetInitialState(EventStreamId streamId) =>
         new(default, default, default, default, default, default);
 
     public ShipmentProcessState Apply(ShipmentProcessState state, BaseShipmentProcessEvent evt) =>

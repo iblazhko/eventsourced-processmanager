@@ -10,9 +10,13 @@ var settings = SettingsResolver.GetSettings();
 // Proper logger in not available at this point
 Console.WriteLine(settings.ToString());
 
-if (!InfrastructureWaitPolicy.WaitForInfrastructure(settings))
+if (InfrastructureWaitPolicy.WaitForInfrastructure(settings))
 {
-    throw new InvalidOperationException("Infrastructure service(s) not available");
+    Console.WriteLine($"[{TimeProvider.System.GetUtcNow():O}] Infrastructure services ready");
+}
+else
+{
+    throw new InvalidOperationException("Infrastructure services not available");
 }
 
 var builder = WebApplication.CreateBuilder(args);

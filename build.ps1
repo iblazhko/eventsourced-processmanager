@@ -8,6 +8,8 @@ Param(
     [ValidateSet("Debug", "Release")]
     [string]$Configuration = "Release",
 
+    [switch]$ScaleOutApplication,
+
     [string]$DotnetVerbosity = "minimal"
 )
 
@@ -170,19 +172,34 @@ Function Step_DotnetTest {
     & dotnet test "$ProjectFile" --no-build --configuration $Configuration --test-adapter-path:. --logger:xunit
 }
 
+Function Get_DockerComposeAppFile {
+    if ($ScaleOutApplication) {
+        "docker-compose.app-scaled.yaml"
+    }
+    else {
+        "docker-compose.app.yaml"
+    }
+}
+
 Function Step_DockerComposeStart {
-    LogStep "docker compose -p $dockerComposeProject up --build --abort-on-container-exit"
-    Start-Process -FilePath "docker" -ArgumentList "compose", "-p", $dockerComposeProject, "up", "--build", "--abort-on-container-exit" -WorkingDirectory "$repositoryDir" -Wait
+    $dockerComposeInfraFile = "docker-compose.infra.yaml"
+    $dockerComposeAppFile = Get_DockerComposeAppFile
+    LogStep "docker compose -p $dockerComposeProject -f $dockerComposeInfraFile -f $dockerComposeAppFile up --build --abort-on-container-exit"
+    & docker compose -p $dockerComposeProject -f $dockerComposeInfraFile -f $dockerComposeAppFile up --build --abort-on-container-exit
 }
 
 Function Step_DockerComposeStartDetached {
-    LogStep "docker compose -p $dockerComposeProject up --build -d"
-    Start-Process -FilePath "docker" -ArgumentList "compose", "-p", $dockerComposeProject, "up", "--build", "-d" -WorkingDirectory "$repositoryDir"
+    $dockerComposeInfraFile = "docker-compose.infra.yaml"
+    $dockerComposeAppFile = Get_DockerComposeAppFile
+    LogStep "docker compose -p $dockerComposeProject -f $dockerComposeInfraFile -f $dockerComposeAppFile up --build --abort-on-container-exit -d"
+    & docker compose -p $dockerComposeProject -f $dockerComposeInfraFile -f $dockerComposeAppFile up --build --abort-on-container-exit -d
 }
 
 Function Step_DockerComposeStop {
-    LogStep "docker compose -p $dockerComposeProject down"
-    Start-Process -FilePath "docker" -ArgumentList "compose", "-p", $dockerComposeProject, "-f", "./docker-compose.yaml", "down" -WorkingDirectory "$repositoryDir" -Wait
+    $dockerComposeInfraFile = "docker-compose.infra.yaml"
+    $dockerComposeAppFile = Get_DockerComposeAppFile
+    LogStep "docker compose -p $dockerComposeProject -f $dockerComposeInfraFile -f $dockerComposeAppFile down"
+    & docker compose -p $dockerComposeProject -f $dockerComposeInfraFile -f $dockerComposeAppFile down
 }
 
 
