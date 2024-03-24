@@ -1,5 +1,6 @@
 namespace EventSourcedPM.Configurators;
 
+using System;
 using EventSourcedPM.Adapters.EventStoreDb;
 using EventSourcedPM.Adapters.MartenDbEventStore;
 using EventSourcedPM.Adapters.MassTransitEventStorePublisher;
@@ -109,6 +110,8 @@ public static class EventStoreConfigurator
         services.AddSingleton<
             EventSourcedRepository<CollectionBookingState, BaseCollectionBookingEvent>
         >();
+
+        services.AddSingleton(TimeProvider.System);
 
         return services;
     }

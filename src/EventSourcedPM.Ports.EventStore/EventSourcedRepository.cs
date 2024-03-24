@@ -27,6 +27,8 @@ public class EventSourcedRepository<TState, TEvent>(IEventStore<TState, TEvent> 
         EventStreamId streamId,
         IEventStreamProjection<TState, TEvent> stateProjection,
         Func<TState, IEnumerable<TEvent>> action,
+        Guid? correlationId = default,
+        Guid? causationId = default,
         TimeSpan deadline = default,
         CancellationToken cancellationToken = default
     )
@@ -36,7 +38,11 @@ public class EventSourcedRepository<TState, TEvent>(IEventStore<TState, TEvent> 
         var newEvents = (action(state) ?? Enumerable.Empty<TEvent>()).ToList();
         if (newEvents.Count > 0)
         {
-            session.AppendEvents(newEvents.Cast<object>().AsEnumerable());
+            session.AppendEvents(
+                newEvents.Cast<object>().AsEnumerable(),
+                correlationId,
+                causationId
+            );
             await session.Save(deadline, cancellationToken);
         }
 

@@ -5,8 +5,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Devops", "_Devops", "{BDC5D2AB-B485-45C4-BB8E-539744506A73}"
 	ProjectSection(SolutionItems) = preProject
 		..\build.ps1 = ..\build.ps1
-		..\docker-compose.yaml = ..\docker-compose.yaml
 		..\version.yaml = ..\version.yaml
+		..\docker-compose.infra.yaml = ..\docker-compose.infra.yaml
+		..\docker-compose.app.yaml = ..\docker-compose.app.yaml
+		..\docker-compose.app-scaled.yaml = ..\docker-compose.app-scaled.yaml
+		..\proxy\proxy.conf = ..\proxy\proxy.conf
+		..\proxy\proxy.Dockerfile = ..\proxy\proxy.Dockerfile
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Doc", "_Doc", "{7A783BD8-23BD-478D-844F-526C40ACACE8}"
@@ -30,6 +34,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcedPM.Ports.Messag
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcedPM.Ports.EventStore", "EventSourcedPM.Ports.EventStore\EventSourcedPM.Ports.EventStore.csproj", "{8C11BA3B-5A6E-487D-A706-0DEF1D96ACC7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcedPM.Adapters.EventStoreDb", "EventSourcedPM.Adapters.EventStoreDb\EventSourcedPM.Adapters.EventStoreDb.csproj", "{7887C03E-9BA6-4398-8658-17C179ADBFA0}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcedPM.Adapters.MartenDbEventStore", "EventSourcedPM.Adapters.MartenDbEventStore\EventSourcedPM.Adapters.MartenDbEventStore.csproj", "{DADE420A-9F38-448B-A263-569C79615AC4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcedPM.Adapters.MassTransitMessageBus", "EventSourcedPM.Adapters.MassTransitMessageBus\EventSourcedPM.Adapters.MassTransitMessageBus.csproj", "{383ED220-1E59-4F01-8FC8-3D0DF11EBB42}"
@@ -37,8 +43,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcedPM.Adapters.MassTransitEventStorePublisher", "EventSourcedPM.Adapters.MassTransitEventStorePublisher\EventSourcedPM.Adapters.MassTransitEventStorePublisher.csproj", "{009C3371-2DAA-4C17-85F1-175296869937}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcedPM.Adapter.CarrierIntegrationStub", "EventSourcedPM.Adapter.CarrierIntegrationStub\EventSourcedPM.Adapter.CarrierIntegrationStub.csproj", "{728ADE63-3156-4F93-A293-A6BE1F908F6C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcedPM.Adapters.EventStoreDb", "EventSourcedPM.Adapters.EventStoreDb\EventSourcedPM.Adapters.EventStoreDb.csproj", "{7887C03E-9BA6-4398-8658-17C179ADBFA0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

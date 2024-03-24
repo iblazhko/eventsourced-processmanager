@@ -14,9 +14,17 @@ using Serilog;
 
 public interface IShipmentProcessManager
 {
-    Task InitializeProcess(ProcessShipment message);
+    Task InitializeProcess(
+        ProcessShipment message,
+        Guid? correlationId = default,
+        Guid? causationId = default
+    );
 
-    Task InvokeProcessTrigger<T>(T trigger)
+    Task InvokeProcessTrigger<T>(
+        T trigger,
+        Guid? correlationId = default,
+        Guid? causationId = default
+    )
         where T : BaseShipmentWithProcessCategoryEvent;
 }
 
@@ -36,7 +44,11 @@ public class ShipmentProcessManager(
     // Here we need to classify the incoming ProcessShipment i.e. determine process category,
     // to find out what kind of process to run. This process category will be carried over
     // in all the following shipment process messages related to this shipment.
-    public async Task InitializeProcess(ProcessShipment message)
+    public async Task InitializeProcess(
+        ProcessShipment message,
+        Guid? correlationId = default,
+        Guid? causationId = default
+    )
     {
         Log.Information(
             "In {MessageType} consumer: {@MessagePayload}",
@@ -62,11 +74,17 @@ public class ShipmentProcessManager(
                         ? d
                         : DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(1)),
                     (TimeZoneId)message.TimeZone
-                )
+                ),
+            correlationId,
+            causationId
         );
     }
 
-    public async Task InvokeProcessTrigger<T>(T trigger)
+    public async Task InvokeProcessTrigger<T>(
+        T trigger,
+        Guid? correlationId = default,
+        Guid? causationId = default
+    )
         where T : BaseShipmentWithProcessCategoryEvent
     {
         Log.Information(
@@ -84,13 +102,17 @@ public class ShipmentProcessManager(
                 process.MakeDecision(
                     shipmentProcessState,
                     ShipmentProcessTrigger.FromEvent(trigger)
-                )
+                ),
+            correlationId,
+            causationId
         );
     }
 
     private async Task InvokeAggregate(
         ShipmentProcessId shipmentId,
-        Func<ShipmentProcessState, IEnumerable<BaseShipmentProcessEvent>> action
+        Func<ShipmentProcessState, IEnumerable<BaseShipmentProcessEvent>> action,
+        Guid? correlationId = default,
+        Guid? causationId = default
     )
     {
         ShipmentProcessState processState = default;
@@ -101,7 +123,9 @@ public class ShipmentProcessManager(
             {
                 processState = state;
                 return action(state) ?? Enumerable.Empty<BaseShipmentProcessEvent>();
-            }
+            },
+            correlationId,
+            causationId
         );
 
         var delegatedDecisionsList = decisions.Where(x => x.Delegated);

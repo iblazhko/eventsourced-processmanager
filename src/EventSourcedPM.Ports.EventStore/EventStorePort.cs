@@ -1,30 +1,11 @@
 ﻿namespace EventSourcedPM.Ports.EventStore;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-
-public readonly record struct EventId
-{
-    private Guid Value { get; }
-
-    private EventId(Guid value)
-    {
-        Value = value;
-    }
-
-    public static EventId NewId() => new(Guid.NewGuid());
-
-    public static EventId Empty => new(Guid.Empty);
-
-    public static implicit operator Guid(EventId id) => id.Value;
-
-    public static implicit operator EventId(Guid id) => new(id);
-
-    public override string ToString() => Value.ToString();
-}
 
 public readonly record struct EventStreamId
 {
@@ -32,6 +13,7 @@ public readonly record struct EventStreamId
 
     private EventStreamId(string value)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(value, nameof(value));
         Value = value;
     }
 
@@ -58,13 +40,19 @@ public readonly record struct EventStreamVersion
     public override string ToString() => Value.ToString();
 }
 
-public record EventMetadata(EventId EventId, EventId CorrelationId, EventId? CausationId)
+public record EventMetadata(
+    string EventTypeFullName,
+    Guid EventId,
+    Guid CorrelationId,
+    Guid? CausationId,
+    DateTime Timestamp
+)
 {
-    public static EventMetadata NewEventMetadata() =>
-        new(EventId.NewId(), EventId.NewId(), default);
+    public static EventMetadata NewEventMetadata(string eventTypeFullName, DateTime timestamp) =>
+        new(eventTypeFullName, Guid.NewGuid(), Guid.NewGuid(), default, timestamp);
 }
 
-public record EventWithMetadata(object Event, string EventTypeFullName, EventMetadata Metadata);
+public record EventWithMetadata(object Event, EventMetadata Metadata);
 
 public record EventStream(
     EventStreamId StreamId,
@@ -75,33 +63,16 @@ public record EventStream(
 public interface IEventTypeResolver
 {
     string GetEventTypeName(object evt) => evt.GetType().Name;
-    string GetEventTypeFullName<T>(object evt) => evt.GetType().FullName;
+    string GetEventTypeFullName(object evt) => evt.GetType().FullName;
     Type GetEventType(string eventTypeName);
 }
 
 public class EventTypeResolver<TEvent> : IEventTypeResolver
 {
-    public Type GetEventType(string eventTypeName) => GetEventTypeFromName(eventTypeName);
+    public Type GetEventType(string eventTypeName) =>
+        eventTypeByName.GetOrAdd(eventTypeName, x => typeof(TEvent).Assembly.GetType(x));
 
-    private readonly Dictionary<string, Type> eventTypeByName = new();
-
-    private Type GetEventTypeFromName(string eventTypeName)
-    {
-        Type eventType;
-        if (!eventTypeByName.ContainsKey(eventTypeName))
-        {
-            var t = typeof(TEvent).Assembly.GetType(eventTypeName);
-
-            eventTypeByName.Add(eventTypeName, t);
-            eventType = t;
-        }
-        else
-        {
-            eventType = eventTypeByName[eventTypeName];
-        }
-
-        return eventType;
-    }
+    private readonly ConcurrentDictionary<string, Type> eventTypeByName = new();
 }
 
 public interface IEventSerializer
@@ -115,8 +86,6 @@ public interface IEventSerializer
 
 public class EventJsonSerializer : IEventSerializer
 {
-    public static IEventSerializer Instance { get; } = new EventJsonSerializer();
-
     public byte[] Serialize<T>(T instance) => JsonSerializer.SerializeToUtf8Bytes(instance);
 
     public byte[] Serialize(object instance) => JsonSerializer.SerializeToUtf8Bytes(instance);
@@ -137,8 +106,6 @@ public interface IEventPublisher
 
 public class NoOpEventPublisher : IEventPublisher
 {
-    public static IEventPublisher Instance { get; } = new NoOpEventPublisher();
-
     public Task Publish(
         IEnumerable<EventWithMetadata> events,
         CancellationToken cancellationToken = default
@@ -163,11 +130,9 @@ public interface IEventStreamSession<TState, out TEvent> : IDisposable, IAsyncDi
         TimeSpan deadline = default,
         CancellationToken cancellationToken = default
     );
-    void AppendEvents(IEnumerable<object> events);
+    void AppendEvents(IEnumerable<object> events, Guid? correlationId, Guid? causationId);
     void AppendEvents(IEnumerable<EventWithMetadata> events);
     Task Save(TimeSpan deadline = default, CancellationToken cancellationToken = default);
-
-    void Lock();
 }
 
 public interface IEventStore<TState, out TEvent> : IDisposable, IAsyncDisposable

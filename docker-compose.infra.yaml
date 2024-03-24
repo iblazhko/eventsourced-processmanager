@@ -49,33 +49,6 @@ services:
     networks:
       - devnet
 
-  ## Main Application - 3 replicas
-
-  app:
-    depends_on:
-      - rabbitmq
-    build:
-      context: ./src/EventSourcedPM
-      dockerfile: eventsourced-pm.Dockerfile
-    environment:
-      - EventSourcedPM__ApiBaseUrl=http://*:43210
-      - EventSourcedPM__EventStore__Endpoint__Host=eventstore
-      - EventSourcedPM__EventStore__Username=admin
-      - EventSourcedPM__EventStore__Password=changeit
-      - EventSourcedPM__Postgres__Endpoint__Host=postgres
-      - EventSourcedPM__Postgres__Username=admin
-      - EventSourcedPM__Postgres__Password=changeit
-      - EventSourcedPM__Postgres__Database=espm
-      - EventSourcedPM__RabbitMq__Endpoint__Host=rabbitmq
-      - EventSourcedPM__RabbitMq__Username=admin
-      - EventSourcedPM__RabbitMq__Password=changeit
-      - EventSourcedPM__RabbitMq__VHost=espm
-      - EventSourcedPM__WaitForInfrastructureOnStartup=true
-    ports:
-      - 43210:43210
-    networks:
-      - devnet
-
 volumes:
   eventstore-data:
     driver: local

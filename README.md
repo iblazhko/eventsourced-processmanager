@@ -33,7 +33,8 @@ approach; *Event Store* and *Message Bus* concepts are encapsulated in
 respective Ports, and there are Adapters for actual implementation.
 This solution uses [MassTransit](https://masstransit.io/) /
 [RabbitMQ](https://rabbitmq.com/) for the underlying message bus implementation,
-and [Marten](https://martendb.io/) / [PostgreSQL](https://www.postgresql.org/)
+and [Marten](https://martendb.io/) / [PostgreSQL](https://www.postgresql.org/) or
+[EventStore DB](https://www.eventstore.com/eventstoredb)
 for the underlying EventStore implementation.
 
 ## Business Domain

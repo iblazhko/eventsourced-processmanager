@@ -7,7 +7,7 @@ using EventSourcedPM.Domain.Models;
 using EventSourcedPM.Messaging.Orchestration.Commands;
 using EventSourcedPM.Messaging.Orchestration.Events;
 using EventSourcedPM.Ports.EventStore;
-using MassTransit;
+using EventSourcedPM.Ports.MessageBus;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +20,7 @@ public static class ApiEndpointsConfigurator
 
     public static void AddApiEndpoints(this WebApplication app)
     {
-        var messageBus = app.Services.GetRequiredService<IBus>();
+        var messageBus = app.Services.GetRequiredService<IMessageBus>();
         var shipmentProcessRepository = app.Services.GetRequiredService<
             EventSourcedRepository<ShipmentProcessState, BaseShipmentProcessEvent>
         >();
@@ -34,7 +34,7 @@ public static class ApiEndpointsConfigurator
             "/{id}",
             async ([FromRoute] string id) =>
             {
-                await messageBus.Publish(
+                await messageBus.SendCommand(
                     id.StartsWith('1')
                         ? new ProcessShipment
                         {

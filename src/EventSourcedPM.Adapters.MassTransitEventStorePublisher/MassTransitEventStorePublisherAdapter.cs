@@ -17,7 +17,17 @@ public class MassTransitEventStorePublisherAdapter(IBus bus) : IEventPublisher
     {
         foreach (var evt in events)
         {
-            await Bus.Publish(evt.Event, evt.Event.GetType(), cancellationToken);
+            await Bus.Publish(
+                evt.Event,
+                evt.Event.GetType(),
+                context =>
+                {
+                    context.MessageId = evt.Metadata.EventId;
+                    context.CorrelationId = evt.Metadata.CorrelationId;
+                    context.RequestId = evt.Metadata.CausationId;
+                },
+                cancellationToken
+            );
         }
     }
 }
