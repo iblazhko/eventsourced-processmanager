@@ -157,6 +157,31 @@ stored in *Collection Booking* event stream.
 Assuming that .NET 8 SDK, PowerShell Core 7, and Docker with Docker Compose
 plugin are installed.
 
+Select EventStore adapter by editing `EventStoreAdapter` parameter in
+`appsettings.json`:
+
+```json
+{
+    "EventSourcedPM": {
+        "EventStoreAdapter": "EventStoreDB",
+        ...
+    }
+}
+```
+
+or
+
+```json
+{
+    "EventSourcedPM": {
+        "EventStoreAdapter": "MartenDB",
+        ...
+    }
+}
+```
+
+
+
 Start the infrastructure and application in Docker Compose:
 
 ```bash
@@ -199,7 +224,8 @@ http post http://localhost:43210/c7de2c4a-dded-47de-8d24-564d7ade3e22
 http post http://localhost:43210/c7de2c4a-dded-47de-8d24-564d7ade3e23
 ```
 
-Observe events in MartenDB/Postgres:
+Observe events: if `MartenDB` EventStore adapter is used, look in
+Postgres:
 
 ```sql
 select * from mt_events
@@ -226,6 +252,9 @@ order by version;
 *Collection Booking* event stream example:
 
 ![Shipment Process Event Stream](./doc/EventStream-ShipmentCollectionBooking.png)
+
+If `EventStoreDB` adapter is used, look at
+`http://localhost:2113/web/index.html#/streams/`.
 
 Get shipment process outcome via API:
 
