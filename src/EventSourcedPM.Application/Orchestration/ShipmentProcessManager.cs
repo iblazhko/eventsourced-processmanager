@@ -122,7 +122,7 @@ public class ShipmentProcessManager(
             state =>
             {
                 processState = state;
-                return action(state) ?? Enumerable.Empty<BaseShipmentProcessEvent>();
+                return action(state) ?? [];
             },
             correlationId,
             causationId

@@ -131,7 +131,7 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>(
                         : throw new InvalidOperationException(
                             $"Event ${e.GetType().FullName} is not compatible with ${typeof(TEvent).FullName}"
                         )
-                ) ?? Enumerable.Empty<EventWithMetadata>()
+                ) ?? []
         );
     }
 

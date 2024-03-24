@@ -130,7 +130,7 @@ internal sealed class EventStoreDbEventStreamSession<TState, TEvent>(
                         : throw new InvalidOperationException(
                             $"Event ${e.Event.GetType().FullName} is not compatible with ${typeof(TEvent).FullName}"
                         )
-                ) ?? Enumerable.Empty<EventWithMetadata>()
+                ) ?? []
         );
     }
 

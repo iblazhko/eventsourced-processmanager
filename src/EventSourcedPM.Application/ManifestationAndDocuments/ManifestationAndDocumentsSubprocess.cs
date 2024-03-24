@@ -203,7 +203,7 @@ public class ManifestationAndDocumentsSubprocess(
             state =>
             {
                 manifestationAndDocumentsState = state;
-                return action(state) ?? Enumerable.Empty<BaseShipmentEvent>();
+                return action(state) ?? [];
             }
         );
 

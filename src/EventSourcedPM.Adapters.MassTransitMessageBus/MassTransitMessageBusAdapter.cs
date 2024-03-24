@@ -81,7 +81,7 @@ public class MassTransitMessageBusAdapter(IBus bus) : IMessageBus
         CancellationToken cancellationToken = default
     )
     {
-        foreach (var evt in events ?? Enumerable.Empty<MessageWithMetadata>())
+        foreach (var evt in events ?? [])
         {
             await PublishEvent(evt, cancellationToken);
         }

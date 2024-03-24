@@ -35,7 +35,7 @@ public class EventSourcedRepository<TState, TEvent>(IEventStore<TState, TEvent> 
     {
         await using var session = EventStore.Open(streamId);
         var state = await session.GetState(stateProjection, deadline, cancellationToken);
-        var newEvents = (action(state) ?? Enumerable.Empty<TEvent>()).ToList();
+        var newEvents = (action(state) ?? []).ToList();
         if (newEvents.Count > 0)
         {
             session.AppendEvents(

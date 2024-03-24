@@ -169,7 +169,7 @@ public class CollectionBookingSubprocess(
             state =>
             {
                 collectionBookingState = state;
-                return action(state) ?? Enumerable.Empty<BaseCollectionBookingEvent>();
+                return action(state) ?? [];
             }
         );
 
