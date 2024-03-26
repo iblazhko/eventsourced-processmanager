@@ -71,7 +71,7 @@ public static class EventStoreConfigurator
                 >();
                 break;
 
-            default:
+            case "MartenDB":
                 services.AddSingleton<
                     IEventStore<ShipmentProcessState, BaseShipmentProcessEvent>,
                     MartenDbEventStoreAdapter<ShipmentProcessState, BaseShipmentProcessEvent>
@@ -85,6 +85,11 @@ public static class EventStoreConfigurator
                     MartenDbEventStoreAdapter<CollectionBookingState, BaseCollectionBookingEvent>
                 >();
                 break;
+
+            default:
+                throw new InvalidOperationException(
+                    $"EventStore adapter type '{settings.EventStoreAdapter}' is not supported"
+                );
         }
 
         services.AddSingleton<
