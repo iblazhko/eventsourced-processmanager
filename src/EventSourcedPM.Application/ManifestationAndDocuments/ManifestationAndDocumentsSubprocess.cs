@@ -197,7 +197,7 @@ public class ManifestationAndDocumentsSubprocess(
     )
     {
         ManifestationAndDocumentsState manifestationAndDocumentsState = default;
-        var newEvents = await manifestationAndDocumentsRepository.Upsert(
+        var newEvents = await manifestationAndDocumentsRepository.AddEvents(
             shipmentId.ToEventStreamId(),
             stateProjection,
             state =>

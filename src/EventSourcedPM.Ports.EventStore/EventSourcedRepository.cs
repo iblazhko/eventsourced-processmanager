@@ -10,7 +10,7 @@ public class EventSourcedRepository<TState, TEvent>(IEventStore<TState, TEvent> 
 {
     private IEventStore<TState, TEvent> EventStore { get; } = eventStore;
 
-    public async Task<TState> Read(
+    public async Task<TState> GetState(
         EventStreamId streamId,
         IEventStreamProjection<TState, TEvent> stateProjection,
         TimeSpan deadline = default,
@@ -23,7 +23,7 @@ public class EventSourcedRepository<TState, TEvent>(IEventStore<TState, TEvent> 
         return state;
     }
 
-    public async Task<IEnumerable<TEvent>> Upsert(
+    public async Task<IEnumerable<TEvent>> AddEvents(
         EventStreamId streamId,
         IEventStreamProjection<TState, TEvent> stateProjection,
         Func<TState, IEnumerable<TEvent>> action,

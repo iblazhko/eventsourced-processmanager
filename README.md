@@ -100,7 +100,7 @@ differentiate between domestic and import/export shipments or have different
 versions of a process for different types of customers etc.
 
 It may or may not be a business requirement to have multiple versions of
-shipment process running at the same, however having a technical ability to
+shipment process running at the same time, however having a technical ability to
 do so is useful for internal purposes, to make it easier to manage changes in
 shipment process and allow pending processes (e.g. those waiting for
 collection booking) to finish as they are.
@@ -142,7 +142,7 @@ stored in *Manifestation and Documents* event stream.
 
 ### Collection Booking
 
-*Manifestation and Documents* component is driven by commands sent from
+*Collection Booking* component is driven by commands sent from
 *Shipment Process* orchestrator, but it may also react to passage of time
 events to initiate collection booking with carrier (passage of time
 events handling, and scheduling aspect in general is not covered in this
@@ -179,8 +179,6 @@ or
     }
 }
 ```
-
-
 
 Start the infrastructure and application in Docker Compose:
 

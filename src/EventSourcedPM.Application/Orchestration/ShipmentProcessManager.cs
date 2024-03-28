@@ -116,7 +116,7 @@ public class ShipmentProcessManager(
     )
     {
         ShipmentProcessState processState = default;
-        var decisions = await shipmentProcessRepository.Upsert(
+        var decisions = await shipmentProcessRepository.AddEvents(
             shipmentId.ToEventStreamId(),
             stateProjection,
             state =>

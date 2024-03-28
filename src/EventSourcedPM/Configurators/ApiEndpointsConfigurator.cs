@@ -85,7 +85,7 @@ public static class ApiEndpointsConfigurator
             "/{id}",
             async ([FromRoute] string id) =>
             {
-                var processState = await shipmentProcessRepository.Read(
+                var processState = await shipmentProcessRepository.GetState(
                     ((ShipmentProcessId)id).ToEventStreamId(),
                     shipmentProcessStateProjection
                 );

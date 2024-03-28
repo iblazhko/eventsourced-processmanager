@@ -163,7 +163,7 @@ public class CollectionBookingSubprocess(
     )
     {
         CollectionBookingState collectionBookingState = default;
-        var newEvents = await collectionBookingRepository.Upsert(
+        var newEvents = await collectionBookingRepository.AddEvents(
             shipmentId.ToEventStreamId(),
             stateProjection,
             state =>
