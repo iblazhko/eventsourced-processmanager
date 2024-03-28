@@ -57,7 +57,7 @@ public record EventWithMetadata(object Event, EventMetadata Metadata);
 public record EventStream(
     EventStreamId StreamId,
     EventStreamVersion StreamVersion,
-    ICollection<EventWithMetadata> Events
+    IReadOnlyCollection<EventWithMetadata> Events
 );
 
 public interface IEventTypeResolver
