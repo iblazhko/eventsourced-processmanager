@@ -243,8 +243,8 @@ or, to get all events relevant to a shipment in one query:
 
 ```sql
 select * from mt_events
-where stream_id like '12EEQ9CS9K10-*'
-order by version;
+where stream_id like '12EEQ9CS9K10-%'
+order by timestamp;
 ```
 
 *Shipment Process* event stream example:
