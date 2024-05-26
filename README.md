@@ -301,7 +301,7 @@ messages are processed, there are ~300K events in `mt_events` table.
 > In a real deployment we could consider splitting API and Application hosts,
 > and running multiple instances of Application host to allow messages to be
 > processed in parallel; parallelization is already implemented to some extent
-> by ussing MassTransit parallel message handling (see `PrefetchCount` and
+> by using MassTransit parallel message handling (see `PrefetchCount` and
 > `ConcurrentMessageLimit` in `MassTransitConfigurator`, but having multiple
 > independent instances of the Application host would help improving
 > performance. Also Postgres instance may need tuning / scaling up.
