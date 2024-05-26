@@ -13,7 +13,7 @@ $scriptBlock = {
     )
 
     for ($i = 0; $i -lt $Count; $i++) {
-        $id = [System.Guid]::NewGuid()
+        $id = [System.Guid]::NewGuid().ToString("N")
         Invoke-WebRequest -Uri "http://localhost:43210/$id" -Method POST | Out-Null
         Start-Sleep -Milliseconds $DelayMilliseconds
     }
