@@ -45,7 +45,7 @@ public class ShipmentLegManifestationFailed : BaseShipmentEvent
 
 public class ShipmentManifested : BaseShipmentEvent
 {
-    public ManifestedShipmentLeg[] ManifestedLegs { get; set; }
+    public ManifestedShipmentLeg[] ManifestedLegs { get; init; }
 }
 
 public class ShipmentManifestationFailed : BaseShipmentEvent
