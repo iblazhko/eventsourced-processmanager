@@ -126,10 +126,10 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>(
             events
                 ?.Where(e => e is { Event: not null })
                 .Select(e =>
-                    EventTypeIsCompatible(e)
+                    EventTypeIsCompatible(e.Event)
                         ? e
                         : throw new InvalidOperationException(
-                            $"Event ${e.GetType().FullName} is not compatible with ${typeof(TEvent).FullName}"
+                            $"Event ${e.Event.GetType().FullName} is not compatible with ${typeof(TEvent).FullName}"
                         )
                 ) ?? []
         );

@@ -11,5 +11,5 @@ public readonly record struct CollectionBookingId(string Id)
 
 public static class EventStreamExtensions
 {
-    public static string ToEventStreamId(this CollectionBookingId id) => $"Collection_{id}";
+    public static string ToEventStreamId(this CollectionBookingId id) => $"{id}-Collection";
 }

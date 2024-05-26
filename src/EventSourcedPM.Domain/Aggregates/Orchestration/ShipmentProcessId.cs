@@ -11,5 +11,5 @@ public readonly record struct ShipmentProcessId(string Id)
 
 public static class EventStreamExtensions
 {
-    public static string ToEventStreamId(this ShipmentProcessId id) => $"Process_{id}";
+    public static string ToEventStreamId(this ShipmentProcessId id) => $"{id}-Process";
 }

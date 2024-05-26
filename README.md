@@ -186,8 +186,8 @@ Start the infrastructure and application in Docker Compose:
 ./build.ps1 DockerCompose.Start
 ```
 
-Trigger the process (use example below as-is or use a random guid for
-shipment id).
+Trigger the process (use example below as-is or use a random alphanumeric
+string for shipment id).
 
 ```bash
 http post http://localhost:43210/{shipmentId}
@@ -196,12 +196,12 @@ http post http://localhost:43210/{shipmentId}
 To emulate various aspects of the process, this solution uses shipment id:
 
 * Shipment process classification:
-  * guid starting with `1` triggers domestic process (`domestic-1.0`)
+  * id starting with `1` triggers domestic process (`domestic-1.0`)
   * otherwise international process (`international-1.0`) is used
 * Failures handling:
-  * guid ending with `1` triggers process that fails at manifestation stage
-  * guid ending with `2` triggers process that fails at collection booking stage
-  * guid ending with `3` triggers process that fails at collection booking stage
+  * id ending with `1` triggers process that fails at manifestation stage
+  * id ending with `2` triggers process that fails at collection booking stage
+  * id ending with `3` triggers process that fails at collection booking stage
     but a few seconds later collection booking will be retried (this emulates
     rebooking initiated by customer or customer support agent) and collection
     booking will complete successfully, so the overall process will transition
@@ -211,15 +211,15 @@ To emulate various aspects of the process, this solution uses shipment id:
 Example:
 
 ```bash
-http post http://localhost:43210/15916b8a-5d11-456f-9934-ed91c2bd82c0
-http post http://localhost:43210/15916b8a-5d11-456f-9934-ed91c2bd82c1
-http post http://localhost:43210/15916b8a-5d11-456f-9934-ed91c2bd82c2
-http post http://localhost:43210/15916b8a-5d11-456f-9934-ed91c2bd82c3
+http post http://localhost:43210/12EEQ9CS9K10
+http post http://localhost:43210/12EEQ9CS9K11
+http post http://localhost:43210/12EEQ9CS9K12
+http post http://localhost:43210/12EEQ9CS9K13
 
-http post http://localhost:43210/c7de2c4a-dded-47de-8d24-564d7ade3e20
-http post http://localhost:43210/c7de2c4a-dded-47de-8d24-564d7ade3e21
-http post http://localhost:43210/c7de2c4a-dded-47de-8d24-564d7ade3e22
-http post http://localhost:43210/c7de2c4a-dded-47de-8d24-564d7ade3e23
+http post http://localhost:43210/V74YCBYHC8A0
+http post http://localhost:43210/V74YCBYHC8A1
+http post http://localhost:43210/V74YCBYHC8A2
+http post http://localhost:43210/V74YCBYHC8A3
 ```
 
 Observe events: if `MartenDB` EventStore adapter is used, look in
@@ -227,52 +227,69 @@ Postgres:
 
 ```sql
 select * from mt_events
-where stream_id = 'Process_15916b8a-5d11-456f-9934-ed91c2bd82c0'
+where stream_id = '12EEQ9CS9K10-Process'
 order by version;
 
 select * from mt_events
-where stream_id = 'Shipment_15916b8a-5d11-456f-9934-ed91c2bd82c0'
+where stream_id = '12EEQ9CS9K10-Shipment'
 order by version;
 
 select * from mt_events
-where stream_id = 'Collection_15916b8a-5d11-456f-9934-ed91c2bd82c0'
+where stream_id = '12EEQ9CS9K10-Collection'
+order by version;
+```
+
+or, to get all events relevant to a shipment in one query:
+
+```sql
+select * from mt_events
+where stream_id like '12EEQ9CS9K10-*'
 order by version;
 ```
 
 *Shipment Process* event stream example:
 
-![Shipment Process Event Stream](./doc/EventStream-ShipmentProcess.png)
+![MartenDB Shipment Process Event Stream](./doc/MartenDB-ShipmentProcessEvents.png)
 
 *Manifestation and Documents* event stream example:
 
-![Shipment Process Event Stream](./doc/EventStream-ShipmentManifestationAndDocuments.png)
+![MartenDB Shipment Process Event Stream](./doc/MartenDB-ShipmentManifestationAndDocumentsEvents.png)
 
 *Collection Booking* event stream example:
 
-![Shipment Process Event Stream](./doc/EventStream-ShipmentCollectionBooking.png)
+![MartenDB Shipment Process Event Stream](./doc/MartenDB-ShipmentCollectionBookingEvents.png)
 
-If `EventStoreDB` adapter is used, look at
-`http://localhost:2113/web/index.html#/streams/`.
+If `EventStoreDB` adapter is used, look at event streams
+* `http://localhost:2113/web/index.html#/streams/{shipmentId}-Process`
+* `http://localhost:2113/web/index.html#/streams/{shipmentId}-Shipmet`
+* `http://localhost:2113/web/index.html#/streams/{shipmentId}-Collection`
+
+All events relevant to a shipment can be viewed using `$by_category` (`$ce`)
+EventStore projection `http://localhost:2113/web/index.html#/streams/$ce-{shipmentId}`
+(shipment id is used as event stream name prefix, so it is treated as a category
+by EventStoreDB).
+
+![EventStoreDB Shipment Process Events](./doc/EventStoreDB-ShipmentProcessEvents.png)
 
 Get shipment process outcome via API:
 
 ```bash
-http get http://localhost:43210/15916b8a-5d11-456f-9934-ed91c2bd82c0
+http get http://localhost:43210/V74YCBYHC8A0
 ```
 ```json
 {
-    "collectionBookingReference": "9064d784528640888cbc5a244e08814f",
-    "collectionDate": "2024-02-05",
+    "collectionBookingReference": "3a0a7bc84fac401d80f76338ffa7fcbf",
+    "collectionDate": "2024-05-27",
     "documents": {
-        "combinedDocument": "https://shipment-documents.net/15916b8a-5d11-456f-9934-ed91c2bd82c0/combined-document",
-        "customsInvoice": null,
-        "labels": "https://shipment-documents.net/15916b8a-5d11-456f-9934-ed91c2bd82c0/labels",
-        "receipt": "https://shipment-documents.net/15916b8a-5d11-456f-9934-ed91c2bd82c0/receipt"
+        "combinedDocument": "https://shipment-documents.net/V74YCBYHC8A0/combined-document",
+        "customsInvoice": "https://shipment-documents.net/V74YCBYHC8A0/customs-invoice",
+        "labels": "https://shipment-documents.net/V74YCBYHC8A0/labels",
+        "receipt": "https://shipment-documents.net/V74YCBYHC8A0/receipt"
     },
-    "processCategory": "domestic-1.0",
-    "shipmentId": "15916b8a-5d11-456f-9934-ed91c2bd82c0",
-    "timeZone": "Europe/London",
-    "trackingNumbers": "211cc3fc4c7a436f8c07be7480b7aae8"
+    "processCategory": "international-1.0",
+    "shipmentId": "V74YCBYHC8A0",
+    "timeZone": "Europe/Berlin",
+    "trackingNumbers": "a438a45a0e54475a83e9091105b94b2e, f0c0042ce60946f3ac4986178c169b03"
 }
 ```
 
