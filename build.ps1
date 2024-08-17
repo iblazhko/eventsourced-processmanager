@@ -128,20 +128,25 @@ Function Step_PruneDocker {
     $pruneDir = $repositoryDir
     LogWarning "Pruning $pruneDir Docker artifacts"
 
-    LogCmd "docker container prune -f"
-    & docker container prune -f | Out-Null
+    foreach ($resource in @('container', 'image', 'volume', 'network')) {
+        LogCmd "docker $resource prune -f"
+        & docker $resource prune -f | Out-Null
+    }
 
-    # Note: Docker image names below are hardcoded. Consider taking it from build.yaml
-    "${dockerComposeProject}_client:latest", "${dockerComposeProject}_server:latest" | ForEach-Object {
-        if ($(docker image ls $_ -q | Out-String) -ne "") {
-            LogCmd "docker rmi $_ -f"
-            & docker rmi $_ -f | Out-Null
+    $dockerImages = $(docker image ls --format "{{.Repository}}")
+    foreach ($image in $dockerImages) {
+        if ($image.StartsWith("${dockerComposeProject}-")) {
+            LogCmd "docker image rm $image"
+            & docker image rm $image | Out-Null
         }
     }
 
-    'image', 'volume', 'network' | ForEach-Object {
-        LogCmd "docker $_ prune -f"
-        & docker $_ prune -f | Out-Null
+    $dockerVolumes = $(docker volume ls --format "{{.Name}}")
+    foreach ($volume in $dockerVolumes) {
+        if ($volume.StartsWith("${dockerComposeProject}_")) {
+            LogCmd "docker volume rm $volume"
+            & docker volume rm $volume | Out-Null
+        }
     }
 }
 
@@ -181,25 +186,37 @@ Function Get_DockerComposeAppFile {
     }
 }
 
+Function Get_DockerComposeInfraServicesFile {
+    [string]$cpuArchitecture = [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture
+    switch ($cpuArchitecture.ToLower()) {
+        "amd64" { "docker-compose.infra.services-amd64.yaml" }
+        "arm64" { "docker-compose.infra.services-arm64.yaml" }
+        default { LogError("CPU architecture $cpuArchitecture is not supported."); Exit 1 }
+    }
+}
+
 Function Step_DockerComposeStart {
     $dockerComposeInfraFile = "docker-compose.infra.yaml"
+    $dockerComposeInfraServicesFile = Get_DockerComposeInfraServicesFile
     $dockerComposeAppFile = Get_DockerComposeAppFile
-    LogStep "docker compose -p $dockerComposeProject -f $dockerComposeInfraFile -f $dockerComposeAppFile up --build --abort-on-container-exit"
-    & docker compose -p $dockerComposeProject -f $dockerComposeInfraFile -f $dockerComposeAppFile up --build --abort-on-container-exit
+    LogStep "docker compose -p $dockerComposeProject -f $dockerComposeInfraFile -f $dockerComposeInfraServicesFile -f $dockerComposeAppFile up --build --abort-on-container-exit"
+    & docker compose -p $dockerComposeProject -f $dockerComposeInfraFile -f $dockerComposeInfraServicesFile -f $dockerComposeAppFile up --build --abort-on-container-exit
 }
 
 Function Step_DockerComposeStartDetached {
     $dockerComposeInfraFile = "docker-compose.infra.yaml"
+    $dockerComposeInfraServicesFile = Get_DockerComposeInfraServicesFile
     $dockerComposeAppFile = Get_DockerComposeAppFile
-    LogStep "docker compose -p $dockerComposeProject -f $dockerComposeInfraFile -f $dockerComposeAppFile up --build --abort-on-container-exit -d"
-    & docker compose -p $dockerComposeProject -f $dockerComposeInfraFile -f $dockerComposeAppFile up --build --abort-on-container-exit -d
+    LogStep "docker compose -p $dockerComposeProject -f $dockerComposeInfraFile -f $dockerComposeInfraServicesFile -f $dockerComposeAppFile up --build --detach"
+    & docker compose -p $dockerComposeProject -f $dockerComposeInfraFile -f $dockerComposeInfraServicesFile -f $dockerComposeAppFile up --build --detach
 }
 
 Function Step_DockerComposeStop {
     $dockerComposeInfraFile = "docker-compose.infra.yaml"
+    $dockerComposeInfraServicesFile = Get_DockerComposeInfraServicesFile
     $dockerComposeAppFile = Get_DockerComposeAppFile
-    LogStep "docker compose -p $dockerComposeProject -f $dockerComposeInfraFile -f $dockerComposeAppFile down"
-    & docker compose -p $dockerComposeProject -f $dockerComposeInfraFile -f $dockerComposeAppFile down
+    LogStep "docker compose -p $dockerComposeProject -f $dockerComposeInfraFile -f $dockerComposeInfraServicesFile -f $dockerComposeAppFile down"
+    & docker compose -p $dockerComposeProject -f $dockerComposeInfraFile -f $dockerComposeInfraServicesFile -f $dockerComposeAppFile down
 }
 
 
@@ -253,7 +270,7 @@ Function Target_Dotnet_Test {
 
     LogTarget "DotNet.Test"
     $projects = Get-ChildItem -Path $srcDir -Filter "*.Tests.csproj" -Recurse -File
-    Foreach ($projectFile in $projects) {
+    foreach ($projectFile in $projects) {
         Step_DotnetTest $projectFile
     }
 }
@@ -263,7 +280,7 @@ Function Target_Dotnet_Publish {
 
     LogTarget "DotNet.Publish"
     $dockerfiles = Get-ChildItem -Path $srcDir -Filter "*.Dockerfile" -Recurse -File
-    Foreach ($dockerFile in $dockerfiles) {
+    foreach ($dockerFile in $dockerfiles) {
         LogInfo "Dockerfile found: $dockerFile"
         $projectDirectory = $dockerFile.Directory
         $projectFile = Get-ChildItem -Path $projectDirectory -Filter "*.?sproj" | Select-Object -First 1
