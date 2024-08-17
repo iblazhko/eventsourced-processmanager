@@ -16,6 +16,8 @@ Param(
 #######################################################################
 # SHARED VARIABLES
 
+$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
 $repositoryDir = (Get-Item $PSScriptRoot).FullName
 $srcDir = Join-Path $repositoryDir "src"
 $dotnetSolutionFile = Get-ChildItem -Path $srcDir -Filter "*.sln" | Select-Object -First 1
@@ -24,8 +26,6 @@ $buildCoreVersion = $(Get-Content "$buildCoreVersionFile").Substring("version:".
 $buildVersion = "$buildCoreVersion$VersionSuffix"
 
 $dockerComposeProject = "espm"
-
-$normalizedTarget = $Target.Replace(".", "_")
 
 # This build system expects following solution layout:
 # solution_root/
@@ -84,8 +84,7 @@ Function PreludeStep_ValidateDotNetCli {
     LogStep "Prelude: .NET CLI"
     $dotnetCmd = Get-Command "dotnet" -ErrorAction Ignore
     if (-Not $dotnetCmd) {
-        LogError ".NET CLI 'dotnet' command not found."
-        Exit 1
+        throw ".NET CLI 'dotnet' command not found."
     }
 }
 
@@ -93,8 +92,7 @@ Function PreludeStep_ValidateDockerCli {
     LogStep "Prelude: Docker CLI"
     $dockerCmd = Get-Command "docker" -ErrorAction Ignore
     if (-Not $dockerCmd) {
-        LogError "Docker CLI 'docker' command not found."
-        Exit 1
+        throw "Docker CLI 'docker' command not found."
     }
 }
 
@@ -191,7 +189,7 @@ Function Get_DockerComposeInfraServicesFile {
     switch ($cpuArchitecture.ToLower()) {
         "amd64" { "docker-compose.infra.services-amd64.yaml" }
         "arm64" { "docker-compose.infra.services-arm64.yaml" }
-        default { LogError("CPU architecture $cpuArchitecture is not supported."); Exit 1 }
+        default { throw "CPU architecture $cpuArchitecture is not supported." }
     }
 }
 
@@ -221,20 +219,6 @@ Function Step_DockerComposeStop {
 
 
 #######################################################################
-# DEPENDENCIES TRACKING
-
-$targetCalls = @{ }
-Function DependsOn {
-    Param([ValidateNotNullOrEmpty()] [string]$Target)
-    $normalizedTarget = $Target.Replace(".", "_")
-
-    if (-Not $targetCalls.ContainsKey($Target)) {
-        Invoke-Expression "Target_$normalizedTarget"
-        $targetCalls.Add($Target, $(Get-Date))
-    }
-}
-
-#######################################################################
 # PRELUDE TARGET
 # Special target that is called automatically
 
@@ -244,6 +228,7 @@ Function Target_Prelude {
     PreludeStep_ValidateDotNetCli
     PreludeStep_ValidateDockerCli
 }
+
 
 #######################################################################
 # TARGETS
@@ -323,23 +308,60 @@ Function Target_FullBuild {
     LogInfo "DONE"
 }
 
-#######################################################################
-# PRUNE TARGETS
 
-if ($Target -eq "Prune") {
-    Step_PruneBuild
-    Exit 0
+#######################################################################
+# DEPENDENCIES TRACKING
+
+$targetCalls = @{ }
+Function DependsOn {
+    Param([ValidateNotNullOrEmpty()] [string]$Target)
+    if (-Not $targetCalls.ContainsKey($Target)) {
+        Invoke_BuildTarget $Target
+        $targetCalls.Add($Target, $(Get-Date))
+    }
 }
 
-if ($Target -eq "Prune.Docker") {
-    Step_PruneDocker
-    Exit 0
+Function Invoke_BuildTarget {
+    Param([ValidateNotNullOrEmpty()] [string]$Target)
+    $normalizedTarget = $Target.Replace(".", "_")
+    Invoke-Expression "Target_$normalizedTarget"
 }
 
 #######################################################################
 # MAIN ENTRY POINT
 
-LogInfo "*** BUILD: $Target ($Configuration) in $repositoryDir"
+$exitResult = 0
 
-DependsOn "Prelude"
-Invoke-Expression "Target_$normalizedTarget"
+$currentLocation = Get-Location
+try {
+    LogInfo "*** BUILD: $Target ($Configuration) in $repositoryDir"
+
+    switch ($Target) {
+        "Prune" { Step_PruneBuild }
+        "Prune.Docker" { Step_PruneDocker }
+        default {
+            DependsOn "Prelude"
+            Invoke_BuildTarget $Target
+        }
+    }
+    Write-Host ""
+    LogInfo "DONE"
+}
+catch [System.Exception] {
+    $errorMessage = "$_"
+    if ($errorMessage.StartsWith("The term 'Target_$Target' is not recognized") -Or
+        $errorMessage.StartsWith("The term 'Target_$normalizedTarget' is not recognized")) {
+        LogError("Target $Target is not recognized")
+    }
+    else {
+        LogError($errorMessage)
+    }
+    $exitResult = 1
+}
+finally {
+    $stopwatch.Stop()
+    LogInfo "*** Completed in: $($stopwatch.Elapsed)"
+    Set-Location $currentLocation
+}
+
+Exit $exitResult
