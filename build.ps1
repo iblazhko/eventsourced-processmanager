@@ -8,7 +8,7 @@ param(
     [ValidateSet("Debug", "Release")]
     [string]$Configuration = "Release",
 
-    [string]$DotnetVerbosity = "quiet",
+    [string]$DotnetVerbosity = "minimal",
 
     [string]$VersionSuffix = "",
 
@@ -214,7 +214,7 @@ function Step_DockerBuild {
     }
 }
 
-Function Get_DockerComposeAppFile {
+function Get_DockerComposeAppFile {
     if ($ScaleOutApplication) {
         "docker-compose.app-scaled.yaml"
     }
@@ -223,7 +223,7 @@ Function Get_DockerComposeAppFile {
     }
 }
 
-Function Get_DockerComposeInfraServicesFile {
+function Get_DockerComposeInfraServicesFile {
     [string]$cpuArchitecture = [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture
     switch ($cpuArchitecture.ToLower()) {
         "amd64" { "docker-compose.infra.services-amd64.yaml" }
