@@ -44,10 +44,7 @@ internal sealed class EventStoreDbEventStreamSession<TState, TEvent>(
 
     private bool isLocked;
 
-    public async Task<EventStream> GetAllEvents(
-        TimeSpan deadline = default,
-        CancellationToken cancellationToken = default
-    )
+    public async Task<EventStream> GetAllEvents(TimeSpan deadline = default, CancellationToken cancellationToken = default)
     {
         if (storedEvents.Count == 0)
             await ReadStoredEvents(DeadlineOrDefault(deadline), cancellationToken);
@@ -87,22 +84,12 @@ internal sealed class EventStoreDbEventStreamSession<TState, TEvent>(
     {
         var currentState = stateFromStoredEvents
             .Some(s => s)
-            .None(
-                await GetStateFromStoredEvents(
-                    projection,
-                    DeadlineOrDefault(deadline),
-                    cancellationToken
-                )
-            );
+            .None(await GetStateFromStoredEvents(projection, DeadlineOrDefault(deadline), cancellationToken));
 
         return newEvents.Aggregate(currentState, (s, e) => projection.Apply(s, (TEvent)e.Event));
     }
 
-    public void AppendEvents(
-        IEnumerable<object> events,
-        Guid? correlationId = default,
-        Guid? causationId = default
-    ) =>
+    public void AppendEvents(IEnumerable<object> events, Guid? correlationId = default, Guid? causationId = default) =>
         AppendEvents(
             events
                 ?.Where(e => e != null)
@@ -134,21 +121,14 @@ internal sealed class EventStoreDbEventStreamSession<TState, TEvent>(
         );
     }
 
-    public async Task Save(
-        TimeSpan deadline = default,
-        CancellationToken cancellationToken = default
-    )
+    public async Task Save(TimeSpan deadline = default, CancellationToken cancellationToken = default)
     {
         Log.Debug("[EVENTSTORE] Save event stream {EventStreamId}", StreamId);
         if (newEvents.Count == 0)
             return;
 
         // TODO: This could be redundant - already checking compatibility in AppendEvents (at least in one overload)
-        var incompatibleEvents = newEvents
-            .Where(e => !EventTypeIsCompatible(e.Event))
-            .Select(e => e.GetType().FullName)
-            .Distinct()
-            .ToList();
+        var incompatibleEvents = newEvents.Where(e => !EventTypeIsCompatible(e.Event)).Select(e => e.GetType().FullName).Distinct().ToList();
         if (incompatibleEvents.Count > 0)
         {
             throw new InvalidOperationException(
@@ -159,21 +139,28 @@ internal sealed class EventStoreDbEventStreamSession<TState, TEvent>(
         if (!knownStoredRevision)
             await GetLastRevision(DeadlineOrDefault(deadline), cancellationToken);
 
-        var writeResult = await Client.AppendToStreamAsync(
-            StreamId,
-            storedRevision.Some(r => StreamRevision.FromInt64(r)).None(StreamRevision.None),
-            newEvents.Select(evt => new EventData(
-                Uuid.NewUuid(),
-                EventTypeResolver.GetEventTypeName(evt.Event),
-                EventSerializer.Serialize(evt.Event),
-                EventSerializer.Serialize(evt.Metadata)
-            )),
-            deadline: DeadlineOrDefault(deadline),
-            cancellationToken: cancellationToken
-        );
+        try
+        {
+            var writeResult = await Client.AppendToStreamAsync(
+                StreamId,
+                storedRevision.Some(r => StreamRevision.FromInt64(r)).None(StreamRevision.None),
+                newEvents.Select(evt => new EventData(
+                    Uuid.NewUuid(),
+                    EventTypeResolver.GetEventTypeName(evt.Event),
+                    EventSerializer.Serialize(evt.Event),
+                    EventSerializer.Serialize(evt.Metadata)
+                )),
+                deadline: DeadlineOrDefault(deadline),
+                cancellationToken: cancellationToken
+            );
 
-        if (writeResult is WrongExpectedVersionResult)
-            throw new ConcurrencyException(StreamId, null);
+            if (writeResult is WrongExpectedVersionResult)
+                throw new ConcurrencyException(StreamId, null);
+        }
+        catch (WrongExpectedVersionException e)
+        {
+            throw new ConcurrencyException(StreamId, e);
+        }
 
         Lock();
 
@@ -197,10 +184,7 @@ internal sealed class EventStoreDbEventStreamSession<TState, TEvent>(
 
     private async Task GetLastRevision(TimeSpan deadline, CancellationToken cancellationToken)
     {
-        Log.Debug(
-            "[EVENTSTORE] Open event stream {EventStreamId} (getting last event revision)",
-            (string)StreamId
-        );
+        Log.Debug("[EVENTSTORE] Open event stream {EventStreamId} (getting last event revision)", (string)StreamId);
         var readResult = Client.ReadStreamAsync(
             Direction.Backwards,
             StreamId,
@@ -212,24 +196,15 @@ internal sealed class EventStoreDbEventStreamSession<TState, TEvent>(
 
         if (await StreamExists(readResult))
         {
-            storedRevision = Optional(readResult.LastStreamPosition?.ToInt64())
-                .Some(r => Some((EventStreamVersion)r))
-                .None(None);
+            storedRevision = Optional(readResult.LastStreamPosition?.ToInt64()).Some(r => Some((EventStreamVersion)r)).None(None);
         }
 
         knownStoredRevision = true;
     }
 
-    private async Task ProcessStoredEvents(
-        Action<EventWithMetadata> action,
-        TimeSpan deadline,
-        CancellationToken cancellationToken
-    )
+    private async Task ProcessStoredEvents(Action<EventWithMetadata> action, TimeSpan deadline, CancellationToken cancellationToken)
     {
-        Log.Debug(
-            "[EVENTSTORE] Open event stream {EventStreamId} (getting stored events)",
-            (string)StreamId
-        );
+        Log.Debug("[EVENTSTORE] Open event stream {EventStreamId} (getting stored events)", (string)StreamId);
 
         var readResult = Client.ReadStreamAsync(
             Direction.Forwards,
@@ -249,10 +224,7 @@ internal sealed class EventStoreDbEventStreamSession<TState, TEvent>(
                     continue;
 
                 var evtMetadata = e.Event.Metadata.Span.IsEmpty
-                    ? EventMetadata.NewEventMetadata(
-                        e.Event.EventType,
-                        EventTimeProvider.GetUtcNow().UtcDateTime
-                    )
+                    ? EventMetadata.NewEventMetadata(e.Event.EventType, EventTimeProvider.GetUtcNow().UtcDateTime)
                     : EventSerializer.Deserialize<EventMetadata>(e.Event.Metadata.Span);
 
                 var eventType = EventTypeResolver.GetEventType(evtMetadata.EventTypeFullName);
@@ -307,8 +279,7 @@ internal sealed class EventStoreDbEventStreamSession<TState, TEvent>(
     private static readonly TimeSpan DefaultDeadline = TimeSpan.FromSeconds(30);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static TimeSpan DeadlineOrDefault(TimeSpan deadline) =>
-        deadline == default ? DefaultDeadline : deadline;
+    private static TimeSpan DeadlineOrDefault(TimeSpan deadline) => deadline == default ? DefaultDeadline : deadline;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool EventTypeIsCompatible(object evt) => EventTypeIsCompatible(evt.GetType());

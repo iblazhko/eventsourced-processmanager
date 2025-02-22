@@ -12,10 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 public static class MassTransitConfigurator
 {
-    public static IServiceCollection AddApplicationMessageBus(
-        this IServiceCollection services,
-        ShipmentProcessSettings settings
-    )
+    public static IServiceCollection AddApplicationMessageBus(this IServiceCollection services, ShipmentProcessSettings settings)
     {
         services.AddMassTransit(x =>
         {
@@ -47,7 +44,7 @@ public static class MassTransitConfigurator
                                 settings.MassTransit.Retry.IntervalMax,
                                 settings.MassTransit.Retry.IntervalDelta
                             )
-                            .Handle<Ports.EventStore.ConcurrencyException>();
+                            .Handle([typeof(Ports.EventStore.ConcurrencyException), typeof(Application.Orchestration.ConcurrencyException)]);
                     });
 
                     cfg.PrefetchCount = settings.MassTransit.PrefetchCount;
