@@ -6,7 +6,7 @@ using EventSourcedPM.Domain.Aggregates.Orchestration;
 using EventSourcedPM.Domain.Models;
 using EventSourcedPM.Messaging.Orchestration.Events;
 using EventSourcedPM.Ports.MessageBus;
-using Serilog;
+using static EventSourcedPM.Application.Orchestration.DelegatorLogger;
 using CollectionBookingCommands = EventSourcedPM.Messaging.CollectionBooking.Commands;
 using ManifestationAndDocumentsCommands = EventSourcedPM.Messaging.ManifestationAndDocuments.Commands;
 
@@ -17,121 +17,126 @@ public interface IShipmentProcessDelegator
 
 public class ShipmentProcessDelegator(IMessageBus messageBus) : IShipmentProcessDelegator
 {
-    public async Task DelegateDecision(
-        ShipmentProcessState processState,
-        BaseShipmentProcessEvent decision
-    )
-    {
-        switch (decision)
+    public Task DelegateDecision(ShipmentProcessState processState, BaseShipmentProcessEvent decision) =>
+        decision switch
         {
-            case ManifestationAndDocumentsStarted started:
-                Log.Information(
-                    "Delegating {MessageType} -> {DelegatedMessageType}",
-                    typeof(ManifestationAndDocumentsStarted).FullName,
-                    typeof(ManifestationAndDocumentsCommands.CreateShipment).FullName
-                );
-                await messageBus.SendCommand(
-                    new ManifestationAndDocumentsCommands.CreateShipment
-                    {
-                        ShipmentId = started.ShipmentId,
-                        ProcessCategory = started.ProcessCategory,
-                        Legs = processState.ProcessInput.Legs.Select(x => x.ToDto()).ToArray()
-                    }
-                );
-                break;
+            ManifestationAndDocumentsStarted started => DelegateCreateShipment(processState, started),
 
-            case CustomsInvoiceGenerationStarted invoiceGenerationStarted:
-                Log.Information(
-                    "Delegating {MessageType} -> {DelegatedMessageType}",
-                    typeof(CustomsInvoiceGenerationStarted).FullName,
-                    typeof(ManifestationAndDocumentsCommands.GenerateCustomsInvoice).FullName
-                );
-                await messageBus.SendCommand(
-                    new ManifestationAndDocumentsCommands.GenerateCustomsInvoice
-                    {
-                        ShipmentId = invoiceGenerationStarted.ShipmentId,
-                        ProcessCategory = invoiceGenerationStarted.ProcessCategory,
-                    }
-                );
-                break;
+            CustomsInvoiceGenerationStarted invoiceGenerationStarted => DelegateGenerateCustomsInvoice(invoiceGenerationStarted),
 
-            case ShipmentManifestationStarted manifestationStarted:
-                Log.Information(
-                    "Delegating {MessageType} -> {DelegatedMessageType}",
-                    typeof(ShipmentManifestationStarted).FullName,
-                    typeof(ManifestationAndDocumentsCommands.ManifestShipment).FullName
-                );
-                await messageBus.SendCommand(
-                    new ManifestationAndDocumentsCommands.ManifestShipment
-                    {
-                        ShipmentId = manifestationStarted.ShipmentId,
-                        ProcessCategory = manifestationStarted.ProcessCategory,
-                    }
-                );
-                break;
+            ShipmentManifestationStarted manifestationStarted => DelegateManifestShipment(manifestationStarted),
 
-            case ShipmentLabelsGenerationStarted labelsGenerationStarted:
-                Log.Information(
-                    "Delegating {MessageType} -> {DelegatedMessageType}",
-                    typeof(ShipmentLabelsGenerationStarted).FullName,
-                    typeof(ManifestationAndDocumentsCommands.GenerateShipmentLabels).FullName
-                );
-                await messageBus.SendCommand(
-                    new ManifestationAndDocumentsCommands.GenerateShipmentLabels
-                    {
-                        ShipmentId = labelsGenerationStarted.ShipmentId,
-                        ProcessCategory = labelsGenerationStarted.ProcessCategory,
-                    }
-                );
-                break;
+            ShipmentLabelsGenerationStarted labelsGenerationStarted => DelegateGenerateShipmentLabels(labelsGenerationStarted),
 
-            case ReceiptGenerationStarted receiptGenerationStarted:
-                Log.Information(
-                    "Delegating {MessageType} -> {DelegatedMessageType}",
-                    typeof(ReceiptGenerationStarted).FullName,
-                    typeof(ManifestationAndDocumentsCommands.GenerateShipmentReceipt).FullName
-                );
-                await messageBus.SendCommand(
-                    new ManifestationAndDocumentsCommands.GenerateShipmentReceipt
-                    {
-                        ShipmentId = receiptGenerationStarted.ShipmentId,
-                        ProcessCategory = receiptGenerationStarted.ProcessCategory,
-                    }
-                );
-                break;
+            ReceiptGenerationStarted receiptGenerationStarted => DelegateGenerateShipmentReceipt(receiptGenerationStarted),
 
-            case CombinedDocumentGenerationStarted combinedDocumentGenerationStarted:
-                Log.Information(
-                    "Delegating {MessageType} -> {DelegatedMessageType}",
-                    typeof(CombinedDocumentGenerationStarted).FullName,
-                    typeof(ManifestationAndDocumentsCommands.GenerateCombinedDocument).FullName
-                );
-                await messageBus.SendCommand(
-                    new ManifestationAndDocumentsCommands.GenerateCombinedDocument
-                    {
-                        ShipmentId = combinedDocumentGenerationStarted.ShipmentId,
-                        ProcessCategory = combinedDocumentGenerationStarted.ProcessCategory,
-                    }
-                );
-                break;
+            CombinedDocumentGenerationStarted combinedDocumentGenerationStarted => DelegateGenerateCombinedDocuments(
+                combinedDocumentGenerationStarted
+            ),
 
-            case CollectionBookingStarted collectionBookingStarted:
-                Log.Information(
-                    "Delegating {MessageType} -> {DelegatedMessageType}",
-                    typeof(CollectionBookingStarted).FullName,
-                    typeof(CollectionBookingCommands.CreateCollectionBooking).FullName
-                );
-                await messageBus.SendCommand(
-                    new CollectionBookingCommands.CreateCollectionBooking
-                    {
-                        ShipmentId = collectionBookingStarted.ShipmentId,
-                        ProcessCategory = collectionBookingStarted.ProcessCategory,
-                        CollectionLeg = processState.ProcessOutcome.ManifestedLegs.First().ToDto(),
-                        CollectionDate = processState.ProcessInput.CollectionDate.ToIsoDate(),
-                        TimeZone = (string)processState.ProcessInput.TimeZone
-                    }
-                );
-                break;
+            CollectionBookingStarted collectionBookingStarted => DelegateCreateCollectionBooking(processState, collectionBookingStarted),
+            _ => Task.CompletedTask,
+        };
+
+    private async Task DelegateCreateShipment(ShipmentProcessState processState, ManifestationAndDocumentsStarted started)
+    {
+        var delegatedMessage = new ManifestationAndDocumentsCommands.CreateShipment
+        {
+            ShipmentId = started.ShipmentId,
+            ProcessCategory = started.ProcessCategory,
+            Legs = processState.ProcessInput.Legs.Select(x => x.ToDto()).ToArray(),
+        };
+
+        LogDelegatingMessage(started, delegatedMessage);
+
+        await messageBus.SendCommand(delegatedMessage);
+    }
+
+    private async Task DelegateGenerateCustomsInvoice(CustomsInvoiceGenerationStarted invoiceGenerationStarted)
+    {
+        var delegatedMessage = new ManifestationAndDocumentsCommands.GenerateCustomsInvoice
+        {
+            ShipmentId = invoiceGenerationStarted.ShipmentId,
+            ProcessCategory = invoiceGenerationStarted.ProcessCategory,
+        };
+
+        LogDelegatingMessage(invoiceGenerationStarted, delegatedMessage);
+
+        await messageBus.SendCommand(delegatedMessage);
+    }
+
+    private async Task DelegateManifestShipment(ShipmentManifestationStarted manifestationStarted)
+    {
+        var delegatedMessage = new ManifestationAndDocumentsCommands.ManifestShipment
+        {
+            ShipmentId = manifestationStarted.ShipmentId,
+            ProcessCategory = manifestationStarted.ProcessCategory,
+        };
+
+        LogDelegatingMessage(manifestationStarted, delegatedMessage);
+
+        await messageBus.SendCommand(delegatedMessage);
+    }
+
+    private async Task DelegateGenerateShipmentReceipt(ReceiptGenerationStarted receiptGenerationStarted)
+    {
+        var delegatedMessage = new ManifestationAndDocumentsCommands.GenerateShipmentReceipt
+        {
+            ShipmentId = receiptGenerationStarted.ShipmentId,
+            ProcessCategory = receiptGenerationStarted.ProcessCategory,
+        };
+
+        LogDelegatingMessage(receiptGenerationStarted, delegatedMessage);
+
+        await messageBus.SendCommand(delegatedMessage);
+    }
+
+    private async Task DelegateCreateCollectionBooking(ShipmentProcessState processState, CollectionBookingStarted collectionBookingStarted)
+    {
+        if (processState.ProcessOutcome.ManifestedLegs.Length == 0)
+        {
+            const string reason = "collection booking started with no manifested legs";
+            LogCannotelegateMessage<CollectionBookingStarted, CollectionBookingCommands.CreateCollectionBooking>(reason);
+            throw new ConcurrencyException((string)processState.ShipmentId, reason);
         }
+
+        var delegatedMessage = new CollectionBookingCommands.CreateCollectionBooking
+        {
+            ShipmentId = collectionBookingStarted.ShipmentId,
+            ProcessCategory = collectionBookingStarted.ProcessCategory,
+            CollectionLeg = processState.ProcessOutcome.ManifestedLegs.First().ToDto(),
+            CollectionDate = processState.ProcessInput.CollectionDate.ToIsoDate(),
+            TimeZone = (string)processState.ProcessInput.TimeZone,
+        };
+
+        LogDelegatingMessage(collectionBookingStarted, delegatedMessage);
+
+        await messageBus.SendCommand(delegatedMessage);
+    }
+
+    private async Task DelegateGenerateCombinedDocuments(CombinedDocumentGenerationStarted combinedDocumentGenerationStarted)
+    {
+        var delegatedMessage = new ManifestationAndDocumentsCommands.GenerateCombinedDocument
+        {
+            ShipmentId = combinedDocumentGenerationStarted.ShipmentId,
+            ProcessCategory = combinedDocumentGenerationStarted.ProcessCategory,
+        };
+
+        LogDelegatingMessage(combinedDocumentGenerationStarted, delegatedMessage);
+
+        await messageBus.SendCommand(delegatedMessage);
+    }
+
+    private async Task DelegateGenerateShipmentLabels(ShipmentLabelsGenerationStarted labelsGenerationStarted)
+    {
+        var delegatedMessage = new ManifestationAndDocumentsCommands.GenerateShipmentLabels
+        {
+            ShipmentId = labelsGenerationStarted.ShipmentId,
+            ProcessCategory = labelsGenerationStarted.ProcessCategory,
+        };
+
+        LogDelegatingMessage(labelsGenerationStarted, delegatedMessage);
+
+        await messageBus.SendCommand(delegatedMessage);
     }
 }

@@ -5,48 +5,43 @@ using System.Threading.Tasks;
 using EventSourcedPM.Domain.Aggregates.ManifestationAndDocuments;
 using EventSourcedPM.Messaging.ManifestationAndDocuments.Events;
 using EventSourcedPM.Ports.MessageBus;
-using Serilog;
+using static EventSourcedPM.Application.Orchestration.DelegatorLogger;
 using CarrierIntegrationCommands = EventSourcedPM.Ports.CarrierIntegration.Commands;
 
 public interface IManifestationAndDocumentsDelegator
 {
-    Task DelegateDecision(
-        ManifestationAndDocumentsState manifestationAndDocumentsState,
-        BaseShipmentEvent decision
-    );
+    Task DelegateDecision(ManifestationAndDocumentsState manifestationAndDocumentsState, BaseShipmentEvent decision);
 }
 
-public class ManifestationAndDocumentsDelegator(IMessageBus messageBus)
-    : IManifestationAndDocumentsDelegator
+public class ManifestationAndDocumentsDelegator(IMessageBus messageBus) : IManifestationAndDocumentsDelegator
 {
-    public async Task DelegateDecision(
+    public Task DelegateDecision(ManifestationAndDocumentsState manifestationAndDocumentsState, BaseShipmentEvent decision) =>
+        decision switch
+        {
+            ShipmentLegManifestationStarted legManifestationStarted => DelegateManifestShipmentWithCarrier(
+                manifestationAndDocumentsState,
+                legManifestationStarted
+            ),
+            _ => Task.CompletedTask,
+        };
+
+    private async Task DelegateManifestShipmentWithCarrier(
         ManifestationAndDocumentsState manifestationAndDocumentsState,
-        BaseShipmentEvent decision
+        ShipmentLegManifestationStarted legManifestationStarted
     )
     {
-        switch (decision)
+        var legToBeManifested = manifestationAndDocumentsState.Legs?.Where(x => x.CarrierId.Id == legManifestationStarted.CarrierId).Single();
+        var delegatedMessage = new CarrierIntegrationCommands.ManifestShipmentWithCarrier
         {
-            case ShipmentLegManifestationStarted legManifestationStarted:
-                Log.Information(
-                    "Delegating {MessageType} -> {DelegatedMessageType}",
-                    typeof(ShipmentLegManifestationStarted).FullName,
-                    typeof(CarrierIntegrationCommands.ManifestShipmentWithCarrier).FullName
-                );
-                var legToBeManifested = manifestationAndDocumentsState
-                    .Legs?.Where(x => x.CarrierId.Id == legManifestationStarted.CarrierId)
-                    .Single();
+            ShipmentId = legManifestationStarted.ShipmentId,
+            CarrierId = legManifestationStarted.CarrierId,
+            Sender = legToBeManifested?.Sender,
+            Receiver = legToBeManifested?.Receiver,
+            Collection = legToBeManifested?.Collection,
+        };
 
-                await messageBus.SendCommand(
-                    new CarrierIntegrationCommands.ManifestShipmentWithCarrier
-                    {
-                        ShipmentId = legManifestationStarted.ShipmentId,
-                        CarrierId = legManifestationStarted.CarrierId,
-                        Sender = legToBeManifested?.Sender,
-                        Receiver = legToBeManifested?.Receiver,
-                        Collection = legToBeManifested?.Collection
-                    }
-                );
-                break;
-        }
+        LogDelegatingMessage(legManifestationStarted, delegatedMessage);
+
+        await messageBus.SendCommand(delegatedMessage);
     }
 }
