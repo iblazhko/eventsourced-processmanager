@@ -154,7 +154,7 @@ stored in *Collection Booking* event stream.
 
 ## Running the Solution
 
-Assuming that .NET 8 SDK, PowerShell Core 7, and Docker with Docker Compose
+Assuming that .NET 9 SDK, PowerShell Core 7, and Docker with Docker Compose
 plugin are installed.
 
 Select EventStore adapter by editing `EventStoreAdapter` parameter in
