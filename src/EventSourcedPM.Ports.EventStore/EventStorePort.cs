@@ -40,13 +40,7 @@ public readonly record struct EventStreamVersion
     public override string ToString() => Value.ToString();
 }
 
-public record EventMetadata(
-    string EventTypeFullName,
-    Guid EventId,
-    Guid CorrelationId,
-    Guid? CausationId,
-    DateTime Timestamp
-)
+public record EventMetadata(string EventTypeFullName, Guid EventId, Guid CorrelationId, Guid? CausationId, DateTime Timestamp)
 {
     public static EventMetadata NewEventMetadata(string eventTypeFullName, DateTime timestamp) =>
         new(eventTypeFullName, Guid.NewGuid(), Guid.NewGuid(), default, timestamp);
@@ -54,11 +48,7 @@ public record EventMetadata(
 
 public record EventWithMetadata(object Event, EventMetadata Metadata);
 
-public record EventStream(
-    EventStreamId StreamId,
-    EventStreamVersion StreamVersion,
-    IReadOnlyCollection<EventWithMetadata> Events
-);
+public record EventStream(EventStreamId StreamId, EventStreamVersion StreamVersion, IReadOnlyCollection<EventWithMetadata> Events);
 
 public interface IEventTypeResolver
 {
@@ -69,8 +59,7 @@ public interface IEventTypeResolver
 
 public class EventTypeResolver<TEvent> : IEventTypeResolver
 {
-    public Type GetEventType(string eventTypeName) =>
-        eventTypeByName.GetOrAdd(eventTypeName, x => typeof(TEvent).Assembly.GetType(x));
+    public Type GetEventType(string eventTypeName) => eventTypeByName.GetOrAdd(eventTypeName, x => typeof(TEvent).Assembly.GetType(x));
 
     private readonly ConcurrentDictionary<string, Type> eventTypeByName = new();
 }
@@ -92,24 +81,17 @@ public class EventJsonSerializer : IEventSerializer
 
     public T Deserialize<T>(ReadOnlySpan<byte> data) => JsonSerializer.Deserialize<T>(data);
 
-    public object Deserialize(ReadOnlySpan<byte> data, Type instanceType) =>
-        JsonSerializer.Deserialize(data, instanceType);
+    public object Deserialize(ReadOnlySpan<byte> data, Type instanceType) => JsonSerializer.Deserialize(data, instanceType);
 }
 
 public interface IEventPublisher
 {
-    Task Publish(
-        IEnumerable<EventWithMetadata> events,
-        CancellationToken cancellationToken = default
-    );
+    Task Publish(IEnumerable<EventWithMetadata> events, CancellationToken cancellationToken = default);
 }
 
 public class NoOpEventPublisher : IEventPublisher
 {
-    public Task Publish(
-        IEnumerable<EventWithMetadata> events,
-        CancellationToken cancellationToken = default
-    ) => Task.CompletedTask;
+    public Task Publish(IEnumerable<EventWithMetadata> events, CancellationToken cancellationToken = default) => Task.CompletedTask;
 }
 
 public interface IEventStreamProjection<TState, in TEvent>
@@ -120,10 +102,7 @@ public interface IEventStreamProjection<TState, in TEvent>
 
 public interface IEventStreamSession<TState, out TEvent> : IDisposable, IAsyncDisposable
 {
-    Task<EventStream> GetAllEvents(
-        TimeSpan deadline = default,
-        CancellationToken cancellationToken = default
-    );
+    Task<EventStream> GetAllEvents(TimeSpan deadline = default, CancellationToken cancellationToken = default);
     EventStream GetNewEvents();
     Task<TState> GetState(
         IEventStreamProjection<TState, TEvent> projection,
@@ -141,11 +120,9 @@ public interface IEventStore<TState, out TEvent> : IDisposable, IAsyncDisposable
     Task<bool> Contains(EventStreamId streamId, CancellationToken cancellationToken = default);
 }
 
-public class UnknownEventTypeException(string typeName)
-    : Exception($"Unknown event type {typeName}");
+public class UnknownEventTypeException(string typeName) : Exception($"Unknown event type {typeName}");
 
-public class SessionIsLockedException(EventStreamId streamId)
-    : Exception($"Session is locked for modifications for stream {streamId}");
+public class SessionIsLockedException(EventStreamId streamId) : Exception($"Session is locked for modifications for stream {streamId}");
 
 public class ConcurrencyException(EventStreamId streamId, Exception innerException)
     : Exception($"Concurrency exception while saving stream {streamId}", innerException);

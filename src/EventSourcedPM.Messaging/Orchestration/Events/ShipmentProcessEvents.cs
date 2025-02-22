@@ -14,7 +14,7 @@ public class ShipmentProcessStarted : BaseShipmentProcessEvent
     public string TimeZone { get; init; }
 }
 
-public class ShipmentProcessCompletionChecked : BaseShipmentProcessEvent;
+public class ShipmentProcessMaybeCompleted : BaseShipmentProcessEvent;
 
 public class ShipmentProcessCompleted : BaseShipmentProcessEvent;
 

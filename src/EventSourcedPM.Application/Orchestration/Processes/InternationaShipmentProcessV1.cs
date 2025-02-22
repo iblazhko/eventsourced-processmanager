@@ -10,8 +10,7 @@ using ManifestationAndDocumentsEvents = EventSourcedPM.Messaging.ManifestationAn
 
 public class InternationalShipmentProcessV1 : IShipmentProcess
 {
-    public static readonly ShipmentProcessCategory ShipmentProcessCategory =
-        (ShipmentProcessCategory)"international-1.0";
+    public static readonly ShipmentProcessCategory ShipmentProcessCategory = (ShipmentProcessCategory)"international-1.0";
 
     public ShipmentProcessCategory Category => ShipmentProcessCategory;
 
@@ -89,83 +88,60 @@ public class InternationalShipmentProcessV1 : IShipmentProcess
           : throw new TriggerEventNotSupportedForStateException(trigger.GetType().FullName, shipmentProcessState.ProcessState);
     */
 
-    public IEnumerable<BaseShipmentProcessEvent> MakeDecision(
-        ShipmentProcessState shipmentProcessState,
-        ShipmentProcessTrigger trigger
-    ) =>
+    public IEnumerable<BaseShipmentProcessEvent> MakeDecision(ShipmentProcessState shipmentProcessState, ShipmentProcessTrigger trigger) =>
         trigger.Match(
             processEvent =>
                 processEvent switch
                 {
                     ShipmentProcessStarted x => DecideThat.ManifestationAndDocumentsStarted(x),
-                    ManifestationAndDocumentsStarted x
-                        => DecideThat.CustomsInvoiceGenerationStarted(x),
-                    CustomsInvoiceGenerationStarted _ => [],
-                    CustomsInvoiceGenerationCompleted x
-                        => DecideThat.ShipmentManifestationStarted(x),
-                    CustomsInvoiceGenerationFailed x
-                        => DecideThat.ManifestationAndDocumentsFailed(x),
-                    ShipmentManifestationStarted _ => [],
-                    ShipmentManifestationCompleted x
-                        => DecideThat.ShipmentLabelsGenerationStarted(x),
+                    ManifestationAndDocumentsStarted x => DecideThat.CustomsInvoiceGenerationStarted(x),
+                    CustomsInvoiceGenerationStarted => [],
+                    CustomsInvoiceGenerationCompleted x => DecideThat.ShipmentManifestationStarted(x),
+                    CustomsInvoiceGenerationFailed x => DecideThat.ManifestationAndDocumentsFailed(x),
+                    ShipmentManifestationStarted => [],
+                    ShipmentManifestationCompleted x => DecideThat.ShipmentLabelsGenerationStarted(x),
                     ShipmentManifestationFailed x => DecideThat.ManifestationAndDocumentsFailed(x),
-                    ShipmentLabelsGenerationStarted _ => [],
+                    ShipmentLabelsGenerationStarted => [],
                     ShipmentLabelsGenerationCompleted x => DecideThat.ReceiptGenerationStarted(x),
-                    ShipmentLabelsGenerationFailed x
-                        => DecideThat.ManifestationAndDocumentsFailed(x),
-                    ReceiptGenerationStarted _ => [],
+                    ShipmentLabelsGenerationFailed x => DecideThat.ManifestationAndDocumentsFailed(x),
+                    ReceiptGenerationStarted => [],
                     ReceiptGenerationCompleted x => DecideThat.CombinedDocumentGenerationStarted(x),
                     ReceiptGenerationFailed x => DecideThat.ManifestationAndDocumentsFailed(x),
-                    CombinedDocumentGenerationStarted _ => [],
-                    CombinedDocumentGenerationCompleted x
-                        => DecideThat.ManifestationAndDocumentsCompleted(x),
-                    CombinedDocumentGenerationFailed x
-                        => DecideThat.ManifestationAndDocumentsFailed(x),
+                    CombinedDocumentGenerationStarted => [],
+                    CombinedDocumentGenerationCompleted x => DecideThat.ManifestationAndDocumentsCompleted(x),
+                    CombinedDocumentGenerationFailed x => DecideThat.ManifestationAndDocumentsFailed(x),
                     ManifestationAndDocumentsCompleted x => DecideThat.CollectionBookingStarted(x),
                     ManifestationAndDocumentsFailed x => DecideThat.ShipmentProcessFailed(x),
-                    CollectionBookingStarted _ => [],
-                    CollectionBookingCompleted x => DecideThat.ShipmentProcessCompletionChecked(x),
+                    CollectionBookingStarted => [],
+                    CollectionBookingCompleted x => DecideThat.ShipmentProcessMaybeCompleted(x),
                     CollectionBookingFailed x => DecideThat.ShipmentProcessFailed(x),
-                    ShipmentProcessCompletionChecked x
-                        => shipmentProcessState.StagesProgress.ManifestationAndDocuments.IsCompleted()
-                        && shipmentProcessState.StagesProgress.CollectionBooking.IsCompletedOrNotRequired()
-                            ? DecideThat.ShipmentProcessCompleted(x)
-                            : [],
-                    _ => throw new TriggerNotSupportedException(trigger.GetType().FullName)
+                    ShipmentProcessMaybeCompleted x => shipmentProcessState.StagesProgress.ManifestationAndDocuments.IsCompleted()
+                    && shipmentProcessState.StagesProgress.CollectionBooking.IsCompletedOrNotRequired()
+                        ? DecideThat.ShipmentProcessCompleted(x)
+                        : [],
+                    _ => throw new TriggerNotSupportedException(trigger.GetType().FullName),
                 },
             manifestationAndDocumentsSubprocessEvent =>
                 manifestationAndDocumentsSubprocessEvent switch
                 {
-                    ManifestationAndDocumentsEvents.ShipmentManifested x
-                        => DecideThat.ShipmentManifestationCompleted(x),
-                    ManifestationAndDocumentsEvents.ShipmentManifestationFailed x
-                        => DecideThat.ShipmentManifestationFailed(x),
-                    ManifestationAndDocumentsEvents.ShipmentLabelsGenerated x
-                        => DecideThat.ShipmentLabelsGenerationCompleted(x),
-                    ManifestationAndDocumentsEvents.ShipmentLabelsGenerationFailed x
-                        => DecideThat.ShipmentLabelsGenerationFailed(x),
-                    ManifestationAndDocumentsEvents.CustomsInvoiceGenerated x
-                        => DecideThat.CustomsInvoiceGenerationCompleted(x),
-                    ManifestationAndDocumentsEvents.CustomsInvoiceGenerationFailed x
-                        => DecideThat.CustomsInvoiceGenerationFailed(x),
-                    ManifestationAndDocumentsEvents.ShipmentReceiptGenerated x
-                        => DecideThat.ReceiptGenerationCompleted(x),
-                    ManifestationAndDocumentsEvents.ShipmentReceiptGenerationFailed x
-                        => DecideThat.ReceiptGenerationFailed(x),
-                    ManifestationAndDocumentsEvents.ShipmentCombinedDocumentGenerated x
-                        => DecideThat.CombinedDocumentGenerationCompleted(x),
-                    ManifestationAndDocumentsEvents.ShipmentCombinedDocumentGenerationFailed x
-                        => DecideThat.CombinedDocumentGenerationFailed(x),
-                    _ => throw new TriggerNotSupportedException(trigger.GetType().FullName)
+                    ManifestationAndDocumentsEvents.ShipmentManifested x => DecideThat.ShipmentManifestationCompleted(x),
+                    ManifestationAndDocumentsEvents.ShipmentManifestationFailed x => DecideThat.ShipmentManifestationFailed(x),
+                    ManifestationAndDocumentsEvents.ShipmentLabelsGenerated x => DecideThat.ShipmentLabelsGenerationCompleted(x),
+                    ManifestationAndDocumentsEvents.ShipmentLabelsGenerationFailed x => DecideThat.ShipmentLabelsGenerationFailed(x),
+                    ManifestationAndDocumentsEvents.CustomsInvoiceGenerated x => DecideThat.CustomsInvoiceGenerationCompleted(x),
+                    ManifestationAndDocumentsEvents.CustomsInvoiceGenerationFailed x => DecideThat.CustomsInvoiceGenerationFailed(x),
+                    ManifestationAndDocumentsEvents.ShipmentReceiptGenerated x => DecideThat.ReceiptGenerationCompleted(x),
+                    ManifestationAndDocumentsEvents.ShipmentReceiptGenerationFailed x => DecideThat.ReceiptGenerationFailed(x),
+                    ManifestationAndDocumentsEvents.ShipmentCombinedDocumentGenerated x => DecideThat.CombinedDocumentGenerationCompleted(x),
+                    ManifestationAndDocumentsEvents.ShipmentCombinedDocumentGenerationFailed x => DecideThat.CombinedDocumentGenerationFailed(x),
+                    _ => throw new TriggerNotSupportedException(trigger.GetType().FullName),
                 },
             collectionBookingSubprocessEvent =>
                 collectionBookingSubprocessEvent switch
                 {
-                    CollectionBookingEvents.CollectionBooked x
-                        => DecideThat.CollectionBookingCompleted(x),
-                    CollectionBookingEvents.CollectionBookingSubprocessFailed x
-                        => DecideThat.CollectionBookingFailed(x),
-                    _ => throw new TriggerNotSupportedException(trigger.GetType().FullName)
+                    CollectionBookingEvents.CollectionBooked x => DecideThat.CollectionBookingCompleted(x),
+                    CollectionBookingEvents.CollectionBookingSubprocessFailed x => DecideThat.CollectionBookingFailed(x),
+                    _ => throw new TriggerNotSupportedException(trigger.GetType().FullName),
                 }
         );
 }

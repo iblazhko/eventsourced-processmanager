@@ -8,19 +8,13 @@ using MassTransit;
 using Serilog;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class CarrierIntegrationStubAdapter
-    : IConsumer<ManifestShipmentWithCarrier>,
-        IConsumer<BookCollectionWithCarrier>
+public class CarrierIntegrationStubAdapter : IConsumer<ManifestShipmentWithCarrier>, IConsumer<BookCollectionWithCarrier>
 {
     public async Task Consume(ConsumeContext<ManifestShipmentWithCarrier> context)
     {
         var message = context.Message;
 
-        Log.Information(
-            "In {MessageType} consumer: {@MessagePayload}",
-            message.GetType().FullName,
-            message
-        );
+        Log.Information("In {MessageType} consumer: {@MessagePayload}", message.GetType().FullName, message);
 
         await Task.Delay(TimeSpan.FromMilliseconds(500));
 
@@ -30,13 +24,13 @@ public class CarrierIntegrationStubAdapter
                 {
                     ShipmentId = message.ShipmentId,
                     CarrierId = message.CarrierId,
-                    Failure = Guid.NewGuid().ToString("N")
+                    Failure = Guid.NewGuid().ToString("N"),
                 }
                 : new ShipmentManifestedWithCarrier
                 {
                     ShipmentId = message.ShipmentId,
                     CarrierId = message.CarrierId,
-                    TrackingNumber = Guid.NewGuid().ToString("N")
+                    TrackingNumber = Guid.NewGuid().ToString("N"),
                 }
         );
     }
@@ -45,11 +39,7 @@ public class CarrierIntegrationStubAdapter
     {
         var message = context.Message;
 
-        Log.Information(
-            "In {MessageType} consumer: {@MessagePayload}",
-            message.GetType().FullName,
-            message
-        );
+        Log.Information("In {MessageType} consumer: {@MessagePayload}", message.GetType().FullName, message);
 
         await Task.Delay(TimeSpan.FromMilliseconds(500));
 
@@ -60,7 +50,7 @@ public class CarrierIntegrationStubAdapter
                 {
                     ShipmentId = message.ShipmentId,
                     CarrierId = message.CarrierId,
-                    Failure = Guid.NewGuid().ToString("N")
+                    Failure = Guid.NewGuid().ToString("N"),
                 }
             );
         }
@@ -71,7 +61,7 @@ public class CarrierIntegrationStubAdapter
                 {
                     ShipmentId = message.ShipmentId,
                     CarrierId = message.CarrierId,
-                    Failure = Guid.NewGuid().ToString("N")
+                    Failure = Guid.NewGuid().ToString("N"),
                 }
             );
             await Task.Delay(TimeSpan.FromSeconds(2));
@@ -80,7 +70,7 @@ public class CarrierIntegrationStubAdapter
                 {
                     ShipmentId = message.ShipmentId,
                     CarrierId = message.CarrierId,
-                    BookingReference = Guid.NewGuid().ToString("N")
+                    BookingReference = Guid.NewGuid().ToString("N"),
                 }
             );
         }
@@ -91,7 +81,7 @@ public class CarrierIntegrationStubAdapter
                 {
                     ShipmentId = message.ShipmentId,
                     CarrierId = message.CarrierId,
-                    BookingReference = Guid.NewGuid().ToString("N")
+                    BookingReference = Guid.NewGuid().ToString("N"),
                 }
             );
         }

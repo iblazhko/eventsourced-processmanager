@@ -6,7 +6,11 @@ internal static class DelegatorLogger
 {
     public static void LogDelegatingMessage<TMessage, TDelegatedMessage>(TMessage message, TDelegatedMessage delegatedMessage)
     {
-        Log.Information("Delegating {MessageType} -> {DelegatedMessageType}", typeof(TMessage).FullName, typeof(TDelegatedMessage).FullName);
+        // csharpier-ignore
+        Log.Information(
+            "Delegating {MessageType} -> {DelegatedMessageType}",
+            typeof(TMessage).FullName,
+            typeof(TDelegatedMessage).FullName);
     }
 
     public static void LogCannotelegateMessage<TMessage, TDelegatedMessage>(string reason)

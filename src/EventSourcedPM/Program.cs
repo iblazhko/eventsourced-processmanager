@@ -21,8 +21,10 @@ else
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls(settings.ApiBaseUrl);
-builder
-    .Services.AddApplicationSerilog()
+
+// csharpier-ignore
+builder.Services
+    .AddApplicationSerilog()
     .AddApplicationMessageBus(settings)
     .AddApplicationEventStore(settings)
     .AddApplicationProcessManager();

@@ -74,10 +74,10 @@ public enum ShipmentDocumentType
     CustomsInvoice,
     Labels,
     Receipt,
-    CombinedDocument
+    CombinedDocument,
 }
 
 public enum ShipmentLegDocumentType
 {
-    Labels
+    Labels,
 }

@@ -14,10 +14,7 @@ public class MassTransitMessageBusAdapter(IBus bus) : IMessageBus
 
     // In this demo, using Publish for commands to not worry about target queue name conventions
 
-    public Task PublishEvent<T>(
-        MessageWithMetadata<T> evt,
-        CancellationToken cancellationToken = default
-    ) =>
+    public Task PublishEvent<T>(MessageWithMetadata<T> evt, CancellationToken cancellationToken = default) =>
         Bus.Publish(
             evt.Message,
             evt.Message.GetType(),
@@ -30,10 +27,7 @@ public class MassTransitMessageBusAdapter(IBus bus) : IMessageBus
             cancellationToken
         );
 
-    public Task PublishEvent(
-        MessageWithMetadata evt,
-        CancellationToken cancellationToken = default
-    ) =>
+    public Task PublishEvent(MessageWithMetadata evt, CancellationToken cancellationToken = default) =>
         Bus.Publish(
             evt.Message,
             evt.Message.GetType(),
@@ -46,29 +40,13 @@ public class MassTransitMessageBusAdapter(IBus bus) : IMessageBus
             cancellationToken
         );
 
-    public Task PublishEvent(
-        object evt,
-        Guid? correlationId = default,
-        Guid? causationId = default,
-        CancellationToken cancellationToken = default
-    ) =>
+    public Task PublishEvent(object evt, Guid? correlationId = default, Guid? causationId = default, CancellationToken cancellationToken = default) =>
         PublishEvent(
-            new MessageWithMetadata(
-                evt,
-                new MessageMetadata(
-                    evt.GetType().FullName,
-                    Guid.NewGuid(),
-                    correlationId ?? Guid.NewGuid(),
-                    causationId
-                )
-            ),
+            new MessageWithMetadata(evt, new MessageMetadata(evt.GetType().FullName, Guid.NewGuid(), correlationId ?? Guid.NewGuid(), causationId)),
             cancellationToken
         );
 
-    public async Task PublishEvents<T>(
-        IEnumerable<MessageWithMetadata<T>> events,
-        CancellationToken cancellationToken = default
-    )
+    public async Task PublishEvents<T>(IEnumerable<MessageWithMetadata<T>> events, CancellationToken cancellationToken = default)
     {
         foreach (var evt in events)
         {
@@ -76,10 +54,7 @@ public class MassTransitMessageBusAdapter(IBus bus) : IMessageBus
         }
     }
 
-    public async Task PublishEvents(
-        IEnumerable<MessageWithMetadata> events,
-        CancellationToken cancellationToken = default
-    )
+    public async Task PublishEvents(IEnumerable<MessageWithMetadata> events, CancellationToken cancellationToken = default)
     {
         foreach (var evt in events ?? [])
         {
@@ -96,32 +71,17 @@ public class MassTransitMessageBusAdapter(IBus bus) : IMessageBus
         PublishEvents(
             events?.Select(evt => new MessageWithMetadata(
                 evt,
-                new MessageMetadata(
-                    evt.GetType().FullName,
-                    Guid.NewGuid(),
-                    correlationId ?? Guid.NewGuid(),
-                    causationId
-                )
+                new MessageMetadata(evt.GetType().FullName, Guid.NewGuid(), correlationId ?? Guid.NewGuid(), causationId)
             )),
             cancellationToken
         );
 
-    public Task SendCommand<T>(
-        MessageWithMetadata<T> cmd,
-        CancellationToken cancellationToken = default
-    ) => PublishEvent(cmd, cancellationToken);
+    public Task SendCommand<T>(MessageWithMetadata<T> cmd, CancellationToken cancellationToken = default) => PublishEvent(cmd, cancellationToken);
 
-    public Task SendCommand(
-        MessageWithMetadata cmd,
-        CancellationToken cancellationToken = default
-    ) => PublishEvent(cmd, cancellationToken);
+    public Task SendCommand(MessageWithMetadata cmd, CancellationToken cancellationToken = default) => PublishEvent(cmd, cancellationToken);
 
-    public Task SendCommand(
-        object cmd,
-        Guid? correlationId = default,
-        Guid? causationId = default,
-        CancellationToken cancellationToken = default
-    ) => PublishEvent(cmd, correlationId, causationId, cancellationToken);
+    public Task SendCommand(object cmd, Guid? correlationId = default, Guid? causationId = default, CancellationToken cancellationToken = default) =>
+        PublishEvent(cmd, correlationId, causationId, cancellationToken);
 
     public Task SendCommands(
         IEnumerable<object> commands,

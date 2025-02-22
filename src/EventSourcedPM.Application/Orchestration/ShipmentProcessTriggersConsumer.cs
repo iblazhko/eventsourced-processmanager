@@ -40,7 +40,7 @@ public class ShipmentProcessTriggersConsumer(IShipmentProcessManager processMana
         IConsumer<CollectionBookingEvents.CollectionBookingSubprocessFailed>,
         IConsumer<CollectionBookingCompleted>,
         IConsumer<CollectionBookingFailed>,
-        IConsumer<ShipmentProcessCompletionChecked>
+        IConsumer<ShipmentProcessMaybeCompleted>
 // a.t.m. there is no real need to consume some of the events above
 // e.g. CustomsInvoiceGenerationStarted or ShipmentManifestationStarted
 // will not result in any new process manager decisions.
@@ -48,240 +48,98 @@ public class ShipmentProcessTriggersConsumer(IShipmentProcessManager processMana
 // and to allow changing process definition without having to (re-)wire triggers
 {
     public Task Consume(ConsumeContext<ProcessShipment> context) =>
-        processManager.InitializeProcess(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InitializeProcess(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<ShipmentProcessStarted> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<ManifestationAndDocumentsStarted> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<ManifestationAndDocumentsCompleted> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<ManifestationAndDocumentsFailed> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<CustomsInvoiceGenerationStarted> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
-    public Task Consume(
-        ConsumeContext<ManifestationAndDocumentsEvents.CustomsInvoiceGenerated> context
-    ) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+    public Task Consume(ConsumeContext<ManifestationAndDocumentsEvents.CustomsInvoiceGenerated> context) =>
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<CustomsInvoiceGenerationCompleted> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<CustomsInvoiceGenerationFailed> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<ShipmentManifestationStarted> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
-    public Task Consume(
-        ConsumeContext<ManifestationAndDocumentsEvents.ShipmentManifested> context
-    ) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+    public Task Consume(ConsumeContext<ManifestationAndDocumentsEvents.ShipmentManifested> context) =>
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
-    public Task Consume(
-        ConsumeContext<ManifestationAndDocumentsEvents.ShipmentManifestationFailed> context
-    ) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+    public Task Consume(ConsumeContext<ManifestationAndDocumentsEvents.ShipmentManifestationFailed> context) =>
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<ShipmentManifestationCompleted> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<ShipmentManifestationFailed> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<ShipmentLabelsGenerationStarted> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
-    public Task Consume(
-        ConsumeContext<ManifestationAndDocumentsEvents.ShipmentLabelsGenerated> context
-    ) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+    public Task Consume(ConsumeContext<ManifestationAndDocumentsEvents.ShipmentLabelsGenerated> context) =>
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<ShipmentLabelsGenerationCompleted> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<ShipmentLabelsGenerationFailed> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<ReceiptGenerationStarted> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
-    public Task Consume(
-        ConsumeContext<ManifestationAndDocumentsEvents.ShipmentReceiptGenerated> context
-    ) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+    public Task Consume(ConsumeContext<ManifestationAndDocumentsEvents.ShipmentReceiptGenerated> context) =>
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<ReceiptGenerationCompleted> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<ReceiptGenerationFailed> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<CombinedDocumentGenerationStarted> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
-    public Task Consume(
-        ConsumeContext<ManifestationAndDocumentsEvents.ShipmentCombinedDocumentGenerated> context
-    ) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+    public Task Consume(ConsumeContext<ManifestationAndDocumentsEvents.ShipmentCombinedDocumentGenerated> context) =>
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<CombinedDocumentGenerationCompleted> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<CombinedDocumentGenerationFailed> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<CollectionBookingStarted> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<CollectionBookingEvents.CollectionBooked> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
-    public Task Consume(
-        ConsumeContext<CollectionBookingEvents.CollectionBookingSubprocessFailed> context
-    ) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+    public Task Consume(ConsumeContext<CollectionBookingEvents.CollectionBookingSubprocessFailed> context) =>
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<CollectionBookingCompleted> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
     public Task Consume(ConsumeContext<CollectionBookingFailed> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 
-    public Task Consume(ConsumeContext<ShipmentProcessCompletionChecked> context) =>
-        processManager.InvokeProcessTrigger(
-            context.Message,
-            context.CorrelationId,
-            context.MessageId
-        );
+    public Task Consume(ConsumeContext<ShipmentProcessMaybeCompleted> context) =>
+        processManager.InvokeProcessTrigger(context.Message, context.CorrelationId, context.MessageId);
 }

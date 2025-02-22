@@ -38,11 +38,7 @@ public class EventSourcedRepository<TState, TEvent>(IEventStore<TState, TEvent> 
         var newEvents = (action(state) ?? []).ToList();
         if (newEvents.Count > 0)
         {
-            session.AppendEvents(
-                newEvents.Cast<object>().AsEnumerable(),
-                correlationId,
-                causationId
-            );
+            session.AppendEvents(newEvents.Cast<object>().AsEnumerable(), correlationId, causationId);
             await session.Save(deadline, cancellationToken);
         }
 

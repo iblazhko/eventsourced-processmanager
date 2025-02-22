@@ -14,17 +14,9 @@ using Serilog;
 
 public interface IShipmentProcessManager
 {
-    Task InitializeProcess(
-        ProcessShipment message,
-        Guid? correlationId = default,
-        Guid? causationId = default
-    );
+    Task InitializeProcess(ProcessShipment message, Guid? correlationId = default, Guid? causationId = default);
 
-    Task InvokeProcessTrigger<T>(
-        T trigger,
-        Guid? correlationId = default,
-        Guid? causationId = default
-    )
+    Task InvokeProcessTrigger<T>(T trigger, Guid? correlationId = default, Guid? causationId = default)
         where T : BaseShipmentWithProcessCategoryEvent;
 }
 
@@ -32,10 +24,7 @@ public class ShipmentProcessManager(
     IClassifyShipmentProcess processClassifier,
     IShipmentProcessRegistry processRegistry,
     IShipmentProcessDelegator processDelegator,
-    EventSourcedRepository<
-        ShipmentProcessState,
-        BaseShipmentProcessEvent
-    > shipmentProcessRepository,
+    EventSourcedRepository<ShipmentProcessState, BaseShipmentProcessEvent> shipmentProcessRepository,
     IEventStreamProjection<ShipmentProcessState, BaseShipmentProcessEvent> stateProjection
 ) : IShipmentProcessManager
 {
@@ -44,24 +33,12 @@ public class ShipmentProcessManager(
     // Here we need to classify the incoming ProcessShipment i.e. determine process category,
     // to find out what kind of process to run. This process category will be carried over
     // in all the following shipment process messages related to this shipment.
-    public async Task InitializeProcess(
-        ProcessShipment message,
-        Guid? correlationId = default,
-        Guid? causationId = default
-    )
+    public async Task InitializeProcess(ProcessShipment message, Guid? correlationId = default, Guid? causationId = default)
     {
-        Log.Information(
-            "In {MessageType} consumer: {@MessagePayload}",
-            message.GetType().FullName,
-            message
-        );
+        Log.Information("In {MessageType} consumer: {@MessagePayload}", message.GetType().FullName, message);
 
         var processCategory = processClassifier.ClassifyShipment(message);
-        Log.Information(
-            "Shipment {ShipmentId} will use process category '{ProcessCategory}'",
-            message.ShipmentId,
-            processCategory
-        );
+        Log.Information("Shipment {ShipmentId} will use process category '{ProcessCategory}'", message.ShipmentId, processCategory);
         var process = processRegistry.GetByCategory(processCategory);
 
         await InvokeAggregate(
@@ -70,9 +47,7 @@ public class ShipmentProcessManager(
                 process.Initialize(
                     (ShipmentProcessId)message.ShipmentId,
                     message.Legs.Select(x => x.ToDomain()).ToArray(),
-                    DateOnly.TryParse(message.CollectionDate, out var d)
-                        ? d
-                        : DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(1)),
+                    DateOnly.TryParse(message.CollectionDate, out var d) ? d : DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(1)),
                     (TimeZoneId)message.TimeZone
                 ),
             correlationId,
@@ -80,29 +55,17 @@ public class ShipmentProcessManager(
         );
     }
 
-    public async Task InvokeProcessTrigger<T>(
-        T trigger,
-        Guid? correlationId = default,
-        Guid? causationId = default
-    )
+    public async Task InvokeProcessTrigger<T>(T trigger, Guid? correlationId = default, Guid? causationId = default)
         where T : BaseShipmentWithProcessCategoryEvent
     {
-        Log.Information(
-            "In {MessageType} consumer: {@MessagePayload}",
-            trigger.GetType().FullName,
-            trigger
-        );
+        Log.Information("In {MessageType} consumer: {@MessagePayload}", trigger.GetType().FullName, trigger);
 
         var processCategory = (ShipmentProcessCategory)trigger.ProcessCategory;
         var process = processRegistry.GetByCategory(processCategory);
 
         await InvokeAggregate(
             (ShipmentProcessId)trigger.ShipmentId,
-            shipmentProcessState =>
-                process.MakeDecision(
-                    shipmentProcessState,
-                    ShipmentProcessTrigger.FromEvent(trigger)
-                ),
+            shipmentProcessState => process.MakeDecision(shipmentProcessState, ShipmentProcessTrigger.FromEvent(trigger)),
             correlationId,
             causationId
         );

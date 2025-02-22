@@ -21,9 +21,7 @@ public static class ApiEndpointsConfigurator
     public static void AddApiEndpoints(this WebApplication app)
     {
         var messageBus = app.Services.GetRequiredService<IMessageBus>();
-        var shipmentProcessRepository = app.Services.GetRequiredService<
-            EventSourcedRepository<ShipmentProcessState, BaseShipmentProcessEvent>
-        >();
+        var shipmentProcessRepository = app.Services.GetRequiredService<EventSourcedRepository<ShipmentProcessState, BaseShipmentProcessEvent>>();
         var shipmentProcessStateProjection = app.Services.GetRequiredService<
             IEventStreamProjection<ShipmentProcessState, BaseShipmentProcessEvent>
         >();
@@ -46,11 +44,11 @@ public static class ApiEndpointsConfigurator
                                     CarrierId = Carrier1,
                                     Sender = "GB-sender1",
                                     Receiver = "GB-receiver1",
-                                    Collection = "GB-collection1"
-                                }
+                                    Collection = "GB-collection1",
+                                },
                             ],
                             CollectionDate = DateTime.UtcNow.Date.AddDays(1).ToIsoDate(),
-                            TimeZone = "Europe/London"
+                            TimeZone = "Europe/London",
                         }
                         : new ProcessShipment
                         {
@@ -62,18 +60,18 @@ public static class ApiEndpointsConfigurator
                                     CarrierId = Carrier1,
                                     Sender = "DE-sender1",
                                     Receiver = "DE-receiver1",
-                                    Collection = "DE-collection1"
+                                    Collection = "DE-collection1",
                                 },
                                 new MessagingModels.ShipmentLeg
                                 {
                                     CarrierId = Carrier2,
                                     Sender = "DE-sender2",
                                     Receiver = "GB-receiver2",
-                                    Collection = "DE-collection2"
-                                }
+                                    Collection = "DE-collection2",
+                                },
                             ],
                             CollectionDate = DateTime.UtcNow.Date.AddDays(1).ToIsoDate(),
-                            TimeZone = "Europe/Berlin"
+                            TimeZone = "Europe/Berlin",
                         }
                 );
 
@@ -94,27 +92,20 @@ public static class ApiEndpointsConfigurator
                 {
                     ShipmentId = id,
                     ProcessCategory = processState.Category.Id,
-                    CollectionDate = processState.ProcessInput.CollectionDate.ToString(
-                        "yyyy-MM-dd"
-                    ),
+                    CollectionDate = processState.ProcessInput.CollectionDate.ToString("yyyy-MM-dd"),
                     TimeZone = processState.ProcessInput.TimeZone.TimeZone,
                     TrackingNumbers = string.Join(
                         ", ",
-                        processState.ProcessOutcome.ManifestedLegs?.Select(l => l.TrackingNumber)
-                            ?? Array.Empty<string>()
+                        processState.ProcessOutcome.ManifestedLegs?.Select(l => l.TrackingNumber) ?? Array.Empty<string>()
                     ),
-                    CollectionBookingReference = processState
-                        .ProcessOutcome
-                        .CollectionBookingReference,
+                    CollectionBookingReference = processState.ProcessOutcome.CollectionBookingReference,
                     Documents = new MessagingModels.ShipmentDocuments
                     {
                         Labels = processState.ProcessOutcome.Documents?.Labels.ToString(),
-                        CustomsInvoice =
-                            processState.ProcessOutcome.Documents?.CustomsInvoice.ToString(),
+                        CustomsInvoice = processState.ProcessOutcome.Documents?.CustomsInvoice.ToString(),
                         Receipt = processState.ProcessOutcome.Documents?.Receipt.ToString(),
-                        CombinedDocument =
-                            processState.ProcessOutcome.Documents?.CombinedDocument.ToString()
-                    }
+                        CombinedDocument = processState.ProcessOutcome.Documents?.CombinedDocument.ToString(),
+                    },
                 };
             }
         );

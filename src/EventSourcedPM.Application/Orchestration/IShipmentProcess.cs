@@ -24,8 +24,8 @@ public interface IShipmentProcess
                 ProcessCategory = (string)Category,
                 Legs = legs.Select(x => x.ToDto()).ToArray(),
                 CollectionDate = collectionDate.ToIsoDate(),
-                TimeZone = (string)timeZone
-            }
+                TimeZone = (string)timeZone,
+            },
         ];
 
     // Note that BaseShipmentProcessEvent acts both as a record of
@@ -34,8 +34,5 @@ public interface IShipmentProcess
     // and a trigger itself - decision events will be consumed from the
     // message bus and passed into process so it can make consecutive
     // decisions.
-    IEnumerable<BaseShipmentProcessEvent> MakeDecision(
-        ShipmentProcessState shipmentProcessState,
-        ShipmentProcessTrigger trigger
-    );
+    IEnumerable<BaseShipmentProcessEvent> MakeDecision(ShipmentProcessState shipmentProcessState, ShipmentProcessTrigger trigger);
 }

@@ -7,7 +7,5 @@ using EventSourcedPM.Messaging.Orchestration.Commands;
 public class ShipmentProcessClassifier : IClassifyShipmentProcess
 {
     public ShipmentProcessCategory ClassifyShipment(ProcessShipment command) =>
-        command.Legs.Length == 1
-            ? DomesticShipmentProcessV1.ShipmentProcessCategory
-            : InternationalShipmentProcessV1.ShipmentProcessCategory;
+        command.Legs.Length == 1 ? DomesticShipmentProcessV1.ShipmentProcessCategory : InternationalShipmentProcessV1.ShipmentProcessCategory;
 }

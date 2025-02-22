@@ -10,10 +10,10 @@ public class EventStoreSettings
     public string Password { get; init; }
     public string ConnectionOptions { get; init; }
 
-    private string GetConnectionOptions()
-        => string.IsNullOrEmpty(ConnectionOptions) ? string.Empty : $"?{ConnectionOptions}";
-    public string GetConnectionString()
-        => $"{Endpoint?.Scheme}://{Username}:{Password}@{Endpoint?.Host}:{Endpoint?.Port}{GetConnectionOptions()}";
+    private string GetConnectionOptions() => string.IsNullOrEmpty(ConnectionOptions) ? string.Empty : $"?{ConnectionOptions}";
+
+    public string GetConnectionString() => $"{Endpoint?.Scheme}://{Username}:{Password}@{Endpoint?.Host}:{Endpoint?.Port}{GetConnectionOptions()}";
+
     public bool HealthCheck { get; init; }
 
     public override string ToString() =>
@@ -38,7 +38,7 @@ public class PostgresSettings
     public string GetConnectionString() =>
         $"Server={Endpoint.Host};Port={Endpoint.Port};Database={Database};User Id={Username};Password={Password};{ConnectionOptions}";
 
-    public bool HealthCheck { get; init;}
+    public bool HealthCheck { get; init; }
 
     public override string ToString() =>
         new StringBuilder()
@@ -61,8 +61,7 @@ public class RabbitMqSettings
 
     public string GetRabbitMqUrl() => $"{Endpoint}/{VHost}";
 
-    public string GetAmqpUrl() =>
-        $"amqp://{Username.ToUrlPart()}:{Password.ToUrlPart()}@{Endpoint.Host}:{Endpoint.Port}/{VHost}";
+    public string GetAmqpUrl() => $"amqp://{Username.ToUrlPart()}:{Password.ToUrlPart()}@{Endpoint.Host}:{Endpoint.Port}/{VHost}";
 
     public bool HealthCheck { get; init; }
 
@@ -92,21 +91,20 @@ public class MassTransitSettings
 public class EndpointSettings
 {
     public string Scheme { get; init; }
-    public string Host { get; init;}
-    public int Port { get; init;}
+    public string Host { get; init; }
+    public int Port { get; init; }
 
     public override string ToString() => $"{Scheme}://{Host}:{Port}";
 }
 
 public class RetrySettings
 {
-    public int Limit { get; init;} = 5;
-    public TimeSpan? Timeout { get; init;} = TimeSpan.FromSeconds(30);
-    public TimeSpan IntervalMin { get; init;} = TimeSpan.FromMilliseconds(10);
-    public TimeSpan IntervalMax { get; init;} = TimeSpan.FromSeconds(5);
-    public TimeSpan IntervalDelta { get; init;} = TimeSpan.FromMilliseconds(200);
+    public int Limit { get; init; } = 5;
+    public TimeSpan? Timeout { get; init; } = TimeSpan.FromSeconds(30);
+    public TimeSpan IntervalMin { get; init; } = TimeSpan.FromMilliseconds(10);
+    public TimeSpan IntervalMax { get; init; } = TimeSpan.FromSeconds(5);
+    public TimeSpan IntervalDelta { get; init; } = TimeSpan.FromMilliseconds(200);
     public bool FastFirst => IntervalMin == TimeSpan.Zero;
 
-    public override string ToString() =>
-        $"Limit: {Limit} / Timeout: {Timeout} [Min: {IntervalMin}; Max: {IntervalMax}; Delta: {IntervalDelta}]";
+    public override string ToString() => $"Limit: {Limit} / Timeout: {Timeout} [Min: {IntervalMin}; Max: {IntervalMax}; Delta: {IntervalDelta}]";
 }

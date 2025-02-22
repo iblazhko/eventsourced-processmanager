@@ -6,16 +6,14 @@ using ManifestationAndDocumentsEvents = EventSourcedPM.Messaging.ManifestationAn
 
 public static partial class DecideThat
 {
-    public static IEnumerable<BaseShipmentProcessEvent> CustomsInvoiceGenerationStarted(
-        ManifestationAndDocumentsStarted trigger
-    ) =>
+    public static IEnumerable<BaseShipmentProcessEvent> CustomsInvoiceGenerationStarted(ManifestationAndDocumentsStarted trigger) =>
         [
             new CustomsInvoiceGenerationStarted
             {
                 ProcessCategory = trigger.ProcessCategory,
                 ShipmentId = trigger.ShipmentId,
-                Delegated = true
-            }
+                Delegated = true,
+            },
         ];
 
     public static IEnumerable<BaseShipmentProcessEvent> CustomsInvoiceGenerationCompleted(
@@ -26,8 +24,8 @@ public static partial class DecideThat
             {
                 ProcessCategory = trigger.ProcessCategory,
                 ShipmentId = trigger.ShipmentId,
-                CustomsInvoice = trigger.DocumentLocation
-            }
+                CustomsInvoice = trigger.DocumentLocation,
+            },
         ];
 
     public static IEnumerable<BaseShipmentProcessEvent> CustomsInvoiceGenerationFailed(
@@ -38,7 +36,7 @@ public static partial class DecideThat
             {
                 ProcessCategory = trigger.ProcessCategory,
                 ShipmentId = trigger.ShipmentId,
-                Failure = trigger.Failure
-            }
+                Failure = trigger.Failure,
+            },
         ];
 }

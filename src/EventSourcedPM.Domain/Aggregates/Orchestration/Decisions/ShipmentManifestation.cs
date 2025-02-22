@@ -6,40 +6,34 @@ using ManifestationAndDocumentsEvents = EventSourcedPM.Messaging.ManifestationAn
 
 public static partial class DecideThat
 {
-    public static IEnumerable<BaseShipmentProcessEvent> ShipmentManifestationStarted(
-        CustomsInvoiceGenerationCompleted trigger
-    ) =>
+    public static IEnumerable<BaseShipmentProcessEvent> ShipmentManifestationStarted(CustomsInvoiceGenerationCompleted trigger) =>
         [
             new ShipmentManifestationStarted
             {
                 ProcessCategory = trigger.ProcessCategory,
                 ShipmentId = trigger.ShipmentId,
-                Delegated = true
-            }
+                Delegated = true,
+            },
         ];
 
-    public static IEnumerable<BaseShipmentProcessEvent> ShipmentManifestationStarted(
-        ManifestationAndDocumentsStarted trigger
-    ) =>
+    public static IEnumerable<BaseShipmentProcessEvent> ShipmentManifestationStarted(ManifestationAndDocumentsStarted trigger) =>
         [
             new ShipmentManifestationStarted
             {
                 ProcessCategory = trigger.ProcessCategory,
                 ShipmentId = trigger.ShipmentId,
-                Delegated = true
-            }
+                Delegated = true,
+            },
         ];
 
-    public static IEnumerable<BaseShipmentProcessEvent> ShipmentManifestationCompleted(
-        ManifestationAndDocumentsEvents.ShipmentManifested trigger
-    ) =>
+    public static IEnumerable<BaseShipmentProcessEvent> ShipmentManifestationCompleted(ManifestationAndDocumentsEvents.ShipmentManifested trigger) =>
         [
             new ShipmentManifestationCompleted
             {
                 ProcessCategory = trigger.ProcessCategory,
                 ShipmentId = trigger.ShipmentId,
-                ManifestedLegs = trigger.ManifestedLegs
-            }
+                ManifestedLegs = trigger.ManifestedLegs,
+            },
         ];
 
     public static IEnumerable<BaseShipmentProcessEvent> ShipmentManifestationFailed(
@@ -50,7 +44,7 @@ public static partial class DecideThat
             {
                 ProcessCategory = trigger.ProcessCategory,
                 ShipmentId = trigger.ShipmentId,
-                Failure = trigger.Failure
-            }
+                Failure = trigger.Failure,
+            },
         ];
 }

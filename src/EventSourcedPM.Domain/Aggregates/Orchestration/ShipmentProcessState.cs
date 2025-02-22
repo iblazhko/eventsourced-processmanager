@@ -12,17 +12,9 @@ public record ShipmentProcessState(
     ShipmentProcessStagesProgress StagesProgress
 );
 
-public record struct ShipmentProcessInput(
-    ShipmentLeg[] Legs,
-    DateOnly CollectionDate,
-    TimeZoneId TimeZone
-);
+public record struct ShipmentProcessInput(ShipmentLeg[] Legs, DateOnly CollectionDate, TimeZoneId TimeZone);
 
-public record struct ShipmentProcessOutcome(
-    ManifestedShipmentLeg[] ManifestedLegs,
-    ShipmentDocuments Documents,
-    string CollectionBookingReference
-);
+public record struct ShipmentProcessOutcome(ManifestedShipmentLeg[] ManifestedLegs, ShipmentDocuments Documents, string CollectionBookingReference);
 
 public record struct ShipmentProcessStagesProgress(
     ShipmentProcessStageStatus OverallProcess,

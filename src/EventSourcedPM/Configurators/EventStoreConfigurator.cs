@@ -21,14 +21,9 @@ using Weasel.Core;
 
 public static class EventStoreConfigurator
 {
-    public static IServiceCollection AddApplicationEventStore(
-        this IServiceCollection services,
-        ShipmentProcessSettings settings
-    )
+    public static IServiceCollection AddApplicationEventStore(this IServiceCollection services, ShipmentProcessSettings settings)
     {
-        var eventStoreClientSettings = EventStoreClientSettings.Create(
-            settings.EventStore.GetConnectionString()
-        );
+        var eventStoreClientSettings = EventStoreClientSettings.Create(settings.EventStore.GetConnectionString());
         eventStoreClientSettings.ConnectionName = nameof(EventSourcedPM);
         services.AddSingleton(new EventStoreClient(eventStoreClientSettings));
 
@@ -51,10 +46,7 @@ public static class EventStoreConfigurator
         switch (settings.EventStoreAdapter)
         {
             case "EventStoreDB":
-                services.AddSingleton<
-                    IEventTypeResolver,
-                    EventTypeResolver<BaseShipmentWithProcessCategoryEvent>
-                >();
+                services.AddSingleton<IEventTypeResolver, EventTypeResolver<BaseShipmentWithProcessCategoryEvent>>();
                 services.AddSingleton<IEventSerializer, EventJsonSerializer>();
 
                 services.AddSingleton<
@@ -87,34 +79,17 @@ public static class EventStoreConfigurator
                 break;
 
             default:
-                throw new InvalidOperationException(
-                    $"EventStore adapter type '{settings.EventStoreAdapter}' is not supported"
-                );
+                throw new InvalidOperationException($"EventStore adapter type '{settings.EventStoreAdapter}' is not supported");
         }
 
-        services.AddSingleton<
-            IEventStreamProjection<ShipmentProcessState, BaseShipmentProcessEvent>,
-            ShipmentProcessStateProjection
-        >();
-        services.AddSingleton<
-            EventSourcedRepository<ShipmentProcessState, BaseShipmentProcessEvent>
-        >();
+        services.AddSingleton<IEventStreamProjection<ShipmentProcessState, BaseShipmentProcessEvent>, ShipmentProcessStateProjection>();
+        services.AddSingleton<EventSourcedRepository<ShipmentProcessState, BaseShipmentProcessEvent>>();
 
-        services.AddSingleton<
-            IEventStreamProjection<ManifestationAndDocumentsState, BaseShipmentEvent>,
-            ManifestationAndDocumentsStateProjection
-        >();
-        services.AddSingleton<
-            EventSourcedRepository<ManifestationAndDocumentsState, BaseShipmentEvent>
-        >();
+        services.AddSingleton<IEventStreamProjection<ManifestationAndDocumentsState, BaseShipmentEvent>, ManifestationAndDocumentsStateProjection>();
+        services.AddSingleton<EventSourcedRepository<ManifestationAndDocumentsState, BaseShipmentEvent>>();
 
-        services.AddSingleton<
-            IEventStreamProjection<CollectionBookingState, BaseCollectionBookingEvent>,
-            CollectionBookingStateProjection
-        >();
-        services.AddSingleton<
-            EventSourcedRepository<CollectionBookingState, BaseCollectionBookingEvent>
-        >();
+        services.AddSingleton<IEventStreamProjection<CollectionBookingState, BaseCollectionBookingEvent>, CollectionBookingStateProjection>();
+        services.AddSingleton<EventSourcedRepository<CollectionBookingState, BaseCollectionBookingEvent>>();
 
         services.AddSingleton(TimeProvider.System);
 

@@ -22,8 +22,8 @@ public static class CollectionBookingAggregate
                 ProcessCategory = (string)processCategory,
                 CollectionLeg = collectionLeg.ToDto(),
                 CollectionDate = collectionDate.ToIsoDate(),
-                TimeZone = (string)timeZone
-            }
+                TimeZone = (string)timeZone,
+            },
         ];
 
     public static IEnumerable<BaseCollectionBookingEvent> ScheduleCollectionBooking(
@@ -33,11 +33,7 @@ public static class CollectionBookingAggregate
         ICollectionBookingScheduler collectionBookingScheduler
     )
     {
-        var schedulingResult = collectionBookingScheduler.ScheduleCollectionBooking(
-            state.CollectionLeg,
-            collectionDate,
-            state.TimeZone
-        );
+        var schedulingResult = collectionBookingScheduler.ScheduleCollectionBooking(state.CollectionLeg, collectionDate, state.TimeZone);
 
         return
         [
@@ -49,7 +45,7 @@ public static class CollectionBookingAggregate
                         ProcessCategory = (string)processCategory,
                         CarrierId = (Guid)state.CollectionLeg.CarrierId,
                         CollectionDate = state.CollectionDate.ToIsoDate(),
-                        BookAt = scheduled.BookAt.ToIsoTimestamp()
+                        BookAt = scheduled.BookAt.ToIsoTimestamp(),
                     } as BaseCollectionBookingEvent,
                 failed => new CollectionBookingSchedulingFailed
                 {
@@ -57,9 +53,9 @@ public static class CollectionBookingAggregate
                     ProcessCategory = (string)processCategory,
                     CarrierId = (Guid)state.CollectionLeg.CarrierId,
                     CollectionDate = state.CollectionDate.ToIsoDate(),
-                    Failure = failed.Failure
+                    Failure = failed.Failure,
                 }
-            )
+            ),
         ];
     }
 
@@ -72,8 +68,8 @@ public static class CollectionBookingAggregate
             {
                 ShipmentId = (string)state.ShipmentId,
                 ProcessCategory = (string)processCategory,
-                Delegated = true
-            }
+                Delegated = true,
+            },
         ];
 
     public static IEnumerable<BaseCollectionBookingEvent> SetAsBookedWithCarrier(
@@ -87,8 +83,8 @@ public static class CollectionBookingAggregate
                 ShipmentId = (string)state.ShipmentId,
                 CarrierId = (Guid)state.CollectionLeg.CarrierId,
                 ProcessCategory = (string)processCategory,
-                BookingReference = bookingReference
-            }
+                BookingReference = bookingReference,
+            },
         ];
 
     public static IEnumerable<BaseCollectionBookingEvent> SetAsCarrierCollectionBookingFailed(
@@ -101,7 +97,7 @@ public static class CollectionBookingAggregate
             {
                 ShipmentId = (string)state.ShipmentId,
                 ProcessCategory = (string)processCategory,
-                Failure = failure
-            }
+                Failure = failure,
+            },
         ];
 }

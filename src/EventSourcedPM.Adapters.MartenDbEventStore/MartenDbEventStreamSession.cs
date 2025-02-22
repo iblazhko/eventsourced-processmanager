@@ -30,15 +30,10 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>(
 
     private bool isLocked;
 
-    private IEnumerable<EventWithMetadata> MapFromMartenEvents(
-        IReadOnlyList<Marten.Events.IEvent> mtEvents
-    ) =>
+    private IEnumerable<EventWithMetadata> MapFromMartenEvents(IReadOnlyList<Marten.Events.IEvent> mtEvents) =>
         mtEvents.Select(e => new EventWithMetadata(
             e.Data,
-            EventMetadata.NewEventMetadata(
-                e.EventType.FullName,
-                EventTimeProvider.GetUtcNow().UtcDateTime
-            )
+            EventMetadata.NewEventMetadata(e.EventType.FullName, EventTimeProvider.GetUtcNow().UtcDateTime)
         ));
 
     private void AssertSessionIsNotLocked()
@@ -58,11 +53,7 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>(
         {
             storedEvents.AddRange(MapFromMartenEvents(mtEvents));
 
-            var incompatibleEvents = storedEvents
-                .Where(e => !EventTypeIsCompatible(e.Event))
-                .Select(e => e.GetType().FullName)
-                .Distinct()
-                .ToList();
+            var incompatibleEvents = storedEvents.Where(e => !EventTypeIsCompatible(e.Event)).Select(e => e.GetType().FullName).Distinct().ToList();
             if (incompatibleEvents.Count > 0)
             {
                 throw new InvalidOperationException(
@@ -74,10 +65,7 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>(
         }
     }
 
-    public async Task<EventStream> GetAllEvents(
-        TimeSpan deadline = default,
-        CancellationToken cancellationToken = default
-    )
+    public async Task<EventStream> GetAllEvents(TimeSpan deadline = default, CancellationToken cancellationToken = default)
     {
         if (storedEvents.Count == 0)
             await ReadStoredEvents(cancellationToken);
@@ -101,11 +89,7 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>(
         return state;
     }
 
-    public void AppendEvents(
-        IEnumerable<object> events,
-        Guid? correlationId = default,
-        Guid? causationId = default
-    ) =>
+    public void AppendEvents(IEnumerable<object> events, Guid? correlationId = default, Guid? causationId = default) =>
         AppendEvents(
             events?.Select(e => new EventWithMetadata(
                 e,
@@ -135,20 +119,13 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>(
         );
     }
 
-    public async Task Save(
-        TimeSpan deadline = default,
-        CancellationToken cancellationToken = default
-    )
+    public async Task Save(TimeSpan deadline = default, CancellationToken cancellationToken = default)
     {
         Log.Debug("[EVENTSTORE] Save event stream {EventStreamId}", StreamId);
         if (newEvents.Count == 0)
             return;
 
-        var incompatibleEvents = newEvents
-            .Where(e => !EventTypeIsCompatible(e.Event))
-            .Select(e => e.GetType().FullName)
-            .Distinct()
-            .ToList();
+        var incompatibleEvents = newEvents.Where(e => !EventTypeIsCompatible(e.Event)).Select(e => e.GetType().FullName).Distinct().ToList();
         if (incompatibleEvents.Count > 0)
         {
             throw new InvalidOperationException(
@@ -160,7 +137,7 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>(
         _ = (long)storedRevision switch
         {
             0 => Session.Events.StartStream(StreamId, mtEvents),
-            _ => Session.Events.Append(StreamId, mtEvents)
+            _ => Session.Events.Append(StreamId, mtEvents),
         };
 
         try

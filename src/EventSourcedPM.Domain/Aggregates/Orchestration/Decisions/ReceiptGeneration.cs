@@ -6,16 +6,14 @@ using ManifestationAndDocumentsEvents = EventSourcedPM.Messaging.ManifestationAn
 
 public static partial class DecideThat
 {
-    public static IEnumerable<BaseShipmentProcessEvent> ReceiptGenerationStarted(
-        ShipmentLabelsGenerationCompleted trigger
-    ) =>
+    public static IEnumerable<BaseShipmentProcessEvent> ReceiptGenerationStarted(ShipmentLabelsGenerationCompleted trigger) =>
         [
             new ReceiptGenerationStarted
             {
                 ProcessCategory = trigger.ProcessCategory,
                 ShipmentId = trigger.ShipmentId,
-                Delegated = true
-            }
+                Delegated = true,
+            },
         ];
 
     public static IEnumerable<BaseShipmentProcessEvent> ReceiptGenerationCompleted(
@@ -26,8 +24,8 @@ public static partial class DecideThat
             {
                 ProcessCategory = trigger.ProcessCategory,
                 ShipmentId = trigger.ShipmentId,
-                Receipt = trigger.DocumentLocation
-            }
+                Receipt = trigger.DocumentLocation,
+            },
         ];
 
     public static IEnumerable<BaseShipmentProcessEvent> ReceiptGenerationFailed(
@@ -38,7 +36,7 @@ public static partial class DecideThat
             {
                 ProcessCategory = trigger.ProcessCategory,
                 ShipmentId = trigger.ShipmentId,
-                Failure = trigger.Failure
-            }
+                Failure = trigger.Failure,
+            },
         ];
 }

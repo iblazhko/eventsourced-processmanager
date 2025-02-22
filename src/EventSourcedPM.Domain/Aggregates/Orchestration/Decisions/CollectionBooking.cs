@@ -6,39 +6,33 @@ using CollectionBookingEvents = EventSourcedPM.Messaging.CollectionBooking.Event
 
 public static partial class DecideThat
 {
-    public static IEnumerable<BaseShipmentProcessEvent> CollectionBookingStarted(
-        ManifestationAndDocumentsCompleted trigger
-    ) =>
+    public static IEnumerable<BaseShipmentProcessEvent> CollectionBookingStarted(ManifestationAndDocumentsCompleted trigger) =>
         [
             new CollectionBookingStarted
             {
                 ProcessCategory = trigger.ProcessCategory,
                 ShipmentId = trigger.ShipmentId,
-                Delegated = true
-            }
+                Delegated = true,
+            },
         ];
 
-    public static IEnumerable<BaseShipmentProcessEvent> CollectionBookingCompleted(
-        CollectionBookingEvents.CollectionBooked trigger
-    ) =>
+    public static IEnumerable<BaseShipmentProcessEvent> CollectionBookingCompleted(CollectionBookingEvents.CollectionBooked trigger) =>
         [
             new CollectionBookingCompleted
             {
                 ProcessCategory = trigger.ProcessCategory,
                 ShipmentId = trigger.ShipmentId,
-                BookingReference = trigger.BookingReference
-            }
+                BookingReference = trigger.BookingReference,
+            },
         ];
 
-    public static IEnumerable<BaseShipmentProcessEvent> CollectionBookingFailed(
-        CollectionBookingEvents.CollectionBookingSubprocessFailed trigger
-    ) =>
+    public static IEnumerable<BaseShipmentProcessEvent> CollectionBookingFailed(CollectionBookingEvents.CollectionBookingSubprocessFailed trigger) =>
         [
             new CollectionBookingFailed
             {
                 ProcessCategory = trigger.ProcessCategory,
                 ShipmentId = trigger.ShipmentId,
-                Failure = trigger.Failure
-            }
+                Failure = trigger.Failure,
+            },
         ];
 }

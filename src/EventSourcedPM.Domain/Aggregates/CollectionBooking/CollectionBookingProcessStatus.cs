@@ -38,28 +38,22 @@ public class CollectionBookingProcessStatus
 
     public static CollectionBookingProcessStatus Initialized() => new(new InitializedStatus());
 
-    public static CollectionBookingProcessStatus Scheduled(DateTime bookAt) =>
-        new(new ScheduledStatus(bookAt));
+    public static CollectionBookingProcessStatus Scheduled(DateTime bookAt) => new(new ScheduledStatus(bookAt));
 
-    public static CollectionBookingProcessStatus SchedulingFailed(string failure) =>
-        new(new SchedulingFailedStatus(failure));
+    public static CollectionBookingProcessStatus SchedulingFailed(string failure) => new(new SchedulingFailedStatus(failure));
 
-    public static CollectionBookingProcessStatus BookingStarted() =>
-        new(new BookingStartedStatus());
+    public static CollectionBookingProcessStatus BookingStarted() => new(new BookingStartedStatus());
 
-    public static CollectionBookingProcessStatus Booked(string bookingReference) =>
-        new(new BookedStatus(bookingReference));
+    public static CollectionBookingProcessStatus Booked(string bookingReference) => new(new BookedStatus(bookingReference));
 
-    public static CollectionBookingProcessStatus BookingFailed(string failure) =>
-        new(new BookingFailedStatus(failure));
+    public static CollectionBookingProcessStatus BookingFailed(string failure) => new(new BookingFailedStatus(failure));
 
     public static CollectionBookingProcessStatus CancellationStarted(string bookingReference) =>
         new(new BookingCancellationStartedStatus(bookingReference));
 
     public static CollectionBookingProcessStatus Cancelled() => new(new BookingCancelledStatus());
 
-    public static CollectionBookingProcessStatus CancellationFailed(string failure) =>
-        new(new BookingCancellationFailedStatus(failure));
+    public static CollectionBookingProcessStatus CancellationFailed(string failure) => new(new BookingCancellationFailedStatus(failure));
 
     private CollectionBookingProcessStatus(
         OneOf<

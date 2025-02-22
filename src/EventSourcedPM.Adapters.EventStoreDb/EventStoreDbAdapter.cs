@@ -21,19 +21,9 @@ public class EventStoreDbAdapter<TState, TEvent>(
     private TimeProvider EventTimeProvider { get; } = timeProvider;
 
     public IEventStreamSession<TState, TEvent> Open(EventStreamId streamId) =>
-        new EventStoreDbEventStreamSession<TState, TEvent>(
-            streamId,
-            Client,
-            EventPublisher,
-            EventTypeResolver,
-            EventSerializer,
-            EventTimeProvider
-        );
+        new EventStoreDbEventStreamSession<TState, TEvent>(streamId, Client, EventPublisher, EventTypeResolver, EventSerializer, EventTimeProvider);
 
-    public async Task<bool> Contains(
-        EventStreamId streamId,
-        CancellationToken cancellationToken = default
-    )
+    public async Task<bool> Contains(EventStreamId streamId, CancellationToken cancellationToken = default)
     {
         try
         {

@@ -34,18 +34,10 @@ public class ShipmentProcessStageStatus
 
     public static ShipmentProcessStageStatus Completed() => new(new CompletedStatus());
 
-    public static ShipmentProcessStageStatus Failed(string failure) =>
-        new(new FailedStatus(failure));
+    public static ShipmentProcessStageStatus Failed(string failure) => new(new FailedStatus(failure));
 
     private ShipmentProcessStageStatus(
-        OneOf<
-            NotRequiredStatus,
-            NotStartedStatus,
-            StartedStatus,
-            RestartedStatus,
-            CompletedStatus,
-            FailedStatus
-        > input
+        OneOf<NotRequiredStatus, NotStartedStatus, StartedStatus, RestartedStatus, CompletedStatus, FailedStatus> input
     )
         : base(input) { }
 

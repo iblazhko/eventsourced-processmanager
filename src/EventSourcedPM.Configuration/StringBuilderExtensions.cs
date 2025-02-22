@@ -19,10 +19,7 @@ public static class StringBuilderExtensions
         return stringBuilder;
     }
 
-    public static StringBuilder AppendSettingSectionTitle(
-        this StringBuilder stringBuilder,
-        string name
-    )
+    public static StringBuilder AppendSettingSectionTitle(this StringBuilder stringBuilder, string name)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Name must be specified", nameof(name));
@@ -31,10 +28,7 @@ public static class StringBuilderExtensions
         return stringBuilder;
     }
 
-    public static StringBuilder AppendSettingValue<TResult>(
-        this StringBuilder stringBuilder,
-        Expression<Func<TResult>> propertyExpression
-    )
+    public static StringBuilder AppendSettingValue<TResult>(this StringBuilder stringBuilder, Expression<Func<TResult>> propertyExpression)
     {
         var body = (MemberExpression)propertyExpression.Body;
         var value = propertyExpression.Compile()();
@@ -45,10 +39,7 @@ public static class StringBuilderExtensions
         return stringBuilder;
     }
 
-    public static StringBuilder AppendConfigLine(
-        this StringBuilder stringBuilder,
-        Expression<Func<TimeSpan>> propertyExpression
-    )
+    public static StringBuilder AppendConfigLine(this StringBuilder stringBuilder, Expression<Func<TimeSpan>> propertyExpression)
     {
         var body = (MemberExpression)propertyExpression.Body;
         var timeSpan = propertyExpression.Compile()();
@@ -58,10 +49,7 @@ public static class StringBuilderExtensions
         return stringBuilder;
     }
 
-    public static StringBuilder AppendSubSection<TResult>(
-        this StringBuilder stringBuilder,
-        Expression<Func<TResult>> propertyExpression
-    )
+    public static StringBuilder AppendSubSection<TResult>(this StringBuilder stringBuilder, Expression<Func<TResult>> propertyExpression)
     {
         var body = (MemberExpression)propertyExpression.Body;
         stringBuilder.AppendSettingSectionTitle(body.Member.Name);
@@ -102,10 +90,7 @@ public static class StringBuilderExtensions
         return stringBuilder;
     }
 
-    public static StringBuilder AppendEnumerableSettings<T>(
-        this StringBuilder stringBuilder,
-        Expression<Func<IEnumerable<T>>> propertyExpression
-    )
+    public static StringBuilder AppendEnumerableSettings<T>(this StringBuilder stringBuilder, Expression<Func<IEnumerable<T>>> propertyExpression)
     {
         var body = (MemberExpression)propertyExpression.Body;
         var enumerable = propertyExpression.Compile()();
@@ -126,6 +111,5 @@ public static class StringBuilderExtensions
         return stringBuilder;
     }
 
-    public static string ToUrlPart(this string s) =>
-        s != null ? Uri.EscapeDataString(s) : string.Empty;
+    public static string ToUrlPart(this string s) => s != null ? Uri.EscapeDataString(s) : string.Empty;
 }

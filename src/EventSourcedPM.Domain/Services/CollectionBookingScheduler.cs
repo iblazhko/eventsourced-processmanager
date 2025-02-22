@@ -19,10 +19,7 @@ public interface ICollectionBookingScheduler
 
 public class CollectionBookingScheduler : ICollectionBookingScheduler
 {
-    public OneOf<
-        CollectionBookingTime,
-        CollectionBookingSchedulingFailure
-    > ScheduleCollectionBooking(
+    public OneOf<CollectionBookingTime, CollectionBookingSchedulingFailure> ScheduleCollectionBooking(
         ManifestedShipmentLeg collectionLeg,
         DateOnly collectionDate,
         TimeZoneId timeZone
@@ -38,16 +35,12 @@ public class CollectionBookingScheduler : ICollectionBookingScheduler
 
         const int maxDaysInTheFuture = 7;
         if (collectionDate > currentDate.AddDays(maxDaysInTheFuture))
-            return new CollectionBookingSchedulingFailure(
-                $"Collection date cannot be after {maxDaysInTheFuture} days in the future"
-            );
+            return new CollectionBookingSchedulingFailure($"Collection date cannot be after {maxDaysInTheFuture} days in the future");
 
         if (collectionDate == currentDate)
             return new CollectionBookingTime(now);
 
-        return new CollectionBookingTime(
-            new DateTime(collectionDate.AddDays(-1), EndOfDayCollectionBookingTime)
-        );
+        return new CollectionBookingTime(new DateTime(collectionDate.AddDays(-1), EndOfDayCollectionBookingTime));
     }
 
     private static readonly TimeOnly EndOfDayCollectionBookingTime = new(22, 30, 0);

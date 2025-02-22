@@ -15,9 +15,7 @@ public static class InfrastructureWaitPolicy
         if (!settings.WaitForInfrastructureOnStartup)
             return true;
 
-        var policy = Policy
-            .HandleResult(false)
-            .WaitAndRetry(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(1), 5));
+        var policy = Policy.HandleResult(false).WaitAndRetry(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(1), 5));
 
         return policy.Execute(() => IsInfrastructureAvailable(settings));
     }
@@ -26,21 +24,9 @@ public static class InfrastructureWaitPolicy
     {
         var infrastructureServicesAvailability = new[]
         {
-            GetServiceAvailability(
-                nameof(settings.EventStore),
-                settings.EventStore.Endpoint.Host,
-                settings.EventStore.Endpoint.Port
-            ),
-            GetServiceAvailability(
-                nameof(settings.Postgres),
-                settings.Postgres.Endpoint.Host,
-                settings.Postgres.Endpoint.Port
-            ),
-            GetServiceAvailability(
-                nameof(settings.RabbitMq),
-                settings.RabbitMq.Endpoint.Host,
-                settings.RabbitMq.Endpoint.Port
-            )
+            GetServiceAvailability(nameof(settings.EventStore), settings.EventStore.Endpoint.Host, settings.EventStore.Endpoint.Port),
+            GetServiceAvailability(nameof(settings.Postgres), settings.Postgres.Endpoint.Host, settings.Postgres.Endpoint.Port),
+            GetServiceAvailability(nameof(settings.RabbitMq), settings.RabbitMq.Endpoint.Host, settings.RabbitMq.Endpoint.Port),
         };
 
         var unavailableMessages = infrastructureServicesAvailability
@@ -76,18 +62,10 @@ public static class InfrastructureWaitPolicy
         }
     }
 
-    private static ServiceAvailabilityResult GetServiceAvailability(
-        string serviceName,
-        string host,
-        int port
-    ) => new(serviceName, host, port, IsPortOpen(host, port, PortCheckTimeout));
+    private static ServiceAvailabilityResult GetServiceAvailability(string serviceName, string host, int port) =>
+        new(serviceName, host, port, IsPortOpen(host, port, PortCheckTimeout));
 
-    private record ServiceAvailabilityResult(
-        string ServiceName,
-        string Host,
-        int Port,
-        bool IsAvailable
-    );
+    private record ServiceAvailabilityResult(string ServiceName, string Host, int Port, bool IsAvailable);
 
     private static readonly TimeSpan PortCheckTimeout = TimeSpan.FromSeconds(3);
 }

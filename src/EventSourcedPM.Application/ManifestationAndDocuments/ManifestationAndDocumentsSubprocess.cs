@@ -19,35 +19,26 @@ public interface IManifestationAndDocumentsSubprocess
 
 public class ManifestationAndDocumentsSubprocess(
     IManifestationAndDocumentsDelegator shipmentDelegator,
-    EventSourcedRepository<
-        ManifestationAndDocumentsState,
-        BaseShipmentEvent
-    > manifestationAndDocumentsRepository,
+    EventSourcedRepository<ManifestationAndDocumentsState, BaseShipmentEvent> manifestationAndDocumentsRepository,
     IEventStreamProjection<ManifestationAndDocumentsState, BaseShipmentEvent> stateProjection
 ) : IManifestationAndDocumentsSubprocess
 {
     public Task Handle(object trigger)
     {
-        Log.Information(
-            "In {MessageType} trigger handler: {@MessagePayload}",
-            trigger.GetType().FullName,
-            trigger
-        );
+        Log.Information("In {MessageType} trigger handler: {@MessagePayload}", trigger.GetType().FullName, trigger);
 
         return trigger switch
         {
             CreateShipment x => HandleCreateShipment(x),
             GenerateCustomsInvoice x => HandleGenerateCustomsInvoice(x),
             ManifestShipment x => HandleManifestShipment(x),
-            CarrierIntegrationEvents.ShipmentManifestedWithCarrier x
-                => HandleCarrierIntegrationShipmentManifestedWithCarrier(x),
-            CarrierIntegrationEvents.ShipmentCarrierManifestationFailed x
-                => HandleCarrierIntegrationShipmentCarrierManifestationFailed(x),
+            CarrierIntegrationEvents.ShipmentManifestedWithCarrier x => HandleCarrierIntegrationShipmentManifestedWithCarrier(x),
+            CarrierIntegrationEvents.ShipmentCarrierManifestationFailed x => HandleCarrierIntegrationShipmentCarrierManifestationFailed(x),
             ShipmentLegManifested x => HandleShipmentLegManifested(x),
             GenerateShipmentLabels x => HandleGenerateShipmentLabels(x),
             GenerateCombinedDocument x => HandleGenerateCombinedDocument(x),
             GenerateShipmentReceipt x => HandleGenerateShipmentReceipt(x),
-            _ => throw new TriggerNotSupportedException(trigger.GetType().FullName)
+            _ => throw new TriggerNotSupportedException(trigger.GetType().FullName),
         };
     }
 
@@ -72,11 +63,7 @@ public class ManifestationAndDocumentsSubprocess(
 
         return InvokeAggregate(
             shipmentId,
-            _ =>
-                ManifestationAndDocumentsAggregate.GenerateCustomsInvoice(
-                    (ShipmentProcessCategory)message.ProcessCategory,
-                    shipmentId
-                )
+            _ => ManifestationAndDocumentsAggregate.GenerateCustomsInvoice((ShipmentProcessCategory)message.ProcessCategory, shipmentId)
         );
     }
 
@@ -96,9 +83,7 @@ public class ManifestationAndDocumentsSubprocess(
         );
     }
 
-    private Task HandleCarrierIntegrationShipmentManifestedWithCarrier(
-        CarrierIntegrationEvents.ShipmentManifestedWithCarrier message
-    )
+    private Task HandleCarrierIntegrationShipmentManifestedWithCarrier(CarrierIntegrationEvents.ShipmentManifestedWithCarrier message)
     {
         var shipmentId = (ShipmentId)message.ShipmentId;
 
@@ -114,9 +99,7 @@ public class ManifestationAndDocumentsSubprocess(
         );
     }
 
-    private Task HandleCarrierIntegrationShipmentCarrierManifestationFailed(
-        CarrierIntegrationEvents.ShipmentCarrierManifestationFailed message
-    )
+    private Task HandleCarrierIntegrationShipmentCarrierManifestationFailed(CarrierIntegrationEvents.ShipmentCarrierManifestationFailed message)
     {
         var shipmentId = (ShipmentId)message.ShipmentId;
 
@@ -155,11 +138,7 @@ public class ManifestationAndDocumentsSubprocess(
         return InvokeAggregate(
             shipmentId,
             state =>
-                ManifestationAndDocumentsAggregate.GenerateShipmentLabels(
-                    (ShipmentProcessCategory)message.ProcessCategory,
-                    shipmentId,
-                    state.Legs
-                )
+                ManifestationAndDocumentsAggregate.GenerateShipmentLabels((ShipmentProcessCategory)message.ProcessCategory, shipmentId, state.Legs)
         );
     }
 
@@ -169,11 +148,7 @@ public class ManifestationAndDocumentsSubprocess(
 
         return InvokeAggregate(
             shipmentId,
-            _ =>
-                ManifestationAndDocumentsAggregate.GenerateCombinedDocument(
-                    (ShipmentProcessCategory)message.ProcessCategory,
-                    shipmentId
-                )
+            _ => ManifestationAndDocumentsAggregate.GenerateCombinedDocument((ShipmentProcessCategory)message.ProcessCategory, shipmentId)
         );
     }
 
@@ -183,18 +158,11 @@ public class ManifestationAndDocumentsSubprocess(
 
         return InvokeAggregate(
             shipmentId,
-            _ =>
-                ManifestationAndDocumentsAggregate.GenerateReceipt(
-                    (ShipmentProcessCategory)message.ProcessCategory,
-                    shipmentId
-                )
+            _ => ManifestationAndDocumentsAggregate.GenerateReceipt((ShipmentProcessCategory)message.ProcessCategory, shipmentId)
         );
     }
 
-    private async Task InvokeAggregate(
-        ShipmentId shipmentId,
-        Func<ManifestationAndDocumentsState, IEnumerable<BaseShipmentEvent>> action
-    )
+    private async Task InvokeAggregate(ShipmentId shipmentId, Func<ManifestationAndDocumentsState, IEnumerable<BaseShipmentEvent>> action)
     {
         ManifestationAndDocumentsState manifestationAndDocumentsState = default;
         var newEvents = await manifestationAndDocumentsRepository.AddEvents(
@@ -215,5 +183,4 @@ public class ManifestationAndDocumentsSubprocess(
     }
 }
 
-public class TriggerNotSupportedException(string triggerType)
-    : Exception($"Trigger '{triggerType}' is not supported");
+public class TriggerNotSupportedException(string triggerType) : Exception($"Trigger '{triggerType}' is not supported");

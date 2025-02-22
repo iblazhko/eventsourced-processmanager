@@ -20,10 +20,7 @@ public interface ICollectionBookingSubprocess
 }
 
 public class CollectionBookingSubprocess(
-    EventSourcedRepository<
-        CollectionBookingState,
-        BaseCollectionBookingEvent
-    > collectionBookingRepository,
+    EventSourcedRepository<CollectionBookingState, BaseCollectionBookingEvent> collectionBookingRepository,
     IEventStreamProjection<CollectionBookingState, BaseCollectionBookingEvent> stateProjection,
     ICollectionBookingDelegator collectionBookingDelegator,
     ICollectionBookingScheduler collectionBookingScheduler,
@@ -32,22 +29,16 @@ public class CollectionBookingSubprocess(
 {
     public Task Handle(object trigger)
     {
-        Log.Information(
-            "In {MessageType} trigger handler: {@MessagePayload}",
-            trigger.GetType().FullName,
-            trigger
-        );
+        Log.Information("In {MessageType} trigger handler: {@MessagePayload}", trigger.GetType().FullName, trigger);
 
         return trigger switch
         {
             CreateCollectionBooking x => HandleCreateCollectionBooking(x),
             ScheduleCollectionBooking x => HandleScheduleCollectionBooking(x),
             BookCollectionWithCarrier x => HandleBookCollectionWithCarrier(x),
-            CarrierIntegrationEvents.CollectionBookedWithCarrier x
-                => HandleCarrierIntegrationCollectionBookedWithCarrier(x),
-            CarrierIntegrationEvents.CarrierCollectionBookingFailed x
-                => HandleCarrierIntegrationCarrierCollectionBookingFailed(x),
-            _ => throw new TriggerNotSupportedException(trigger.GetType().FullName)
+            CarrierIntegrationEvents.CollectionBookedWithCarrier x => HandleCarrierIntegrationCollectionBookedWithCarrier(x),
+            CarrierIntegrationEvents.CarrierCollectionBookingFailed x => HandleCarrierIntegrationCarrierCollectionBookingFailed(x),
+            _ => throw new TriggerNotSupportedException(trigger.GetType().FullName),
         };
     }
 
@@ -62,33 +53,25 @@ public class CollectionBookingSubprocess(
                     (ShipmentProcessCategory)message.ProcessCategory,
                     shipmentId,
                     message.CollectionLeg.ToDomain(),
-                    DateOnly.TryParse(message.CollectionDate, out var d)
-                        ? d
-                        : DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1).Date),
+                    DateOnly.TryParse(message.CollectionDate, out var d) ? d : DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1).Date),
                     (TimeZoneId)message.TimeZone
                 )
         );
 
         // For testing purposes, trigger scheduling and booking in-place
 
-        await Task.Delay(TimeSpan.FromMilliseconds(200));
+        await Task.Delay(TimeSpan.FromMilliseconds(10));
         await messageBus.SendCommand(
             new ScheduleCollectionBooking
             {
                 ProcessCategory = message.ProcessCategory,
                 ShipmentId = message.ShipmentId,
-                CollectionDate = message.CollectionDate
+                CollectionDate = message.CollectionDate,
             }
         );
 
-        await Task.Delay(TimeSpan.FromSeconds(5));
-        await messageBus.SendCommand(
-            new BookCollectionWithCarrier
-            {
-                ProcessCategory = message.ProcessCategory,
-                ShipmentId = message.ShipmentId,
-            }
-        );
+        await Task.Delay(TimeSpan.FromMilliseconds(50));
+        await messageBus.SendCommand(new BookCollectionWithCarrier { ProcessCategory = message.ProcessCategory, ShipmentId = message.ShipmentId });
     }
 
     private Task HandleScheduleCollectionBooking(ScheduleCollectionBooking message)
@@ -101,9 +84,7 @@ public class CollectionBookingSubprocess(
                 CollectionBookingAggregate.ScheduleCollectionBooking(
                     (ShipmentProcessCategory)message.ProcessCategory,
                     state,
-                    DateOnly.TryParse(message.CollectionDate, out var date)
-                        ? date
-                        : DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(1)),
+                    DateOnly.TryParse(message.CollectionDate, out var date) ? date : DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(1)),
                     collectionBookingScheduler
                 )
         );
@@ -115,52 +96,31 @@ public class CollectionBookingSubprocess(
 
         return InvokeAggregate(
             shipmentId,
-            state =>
-                CollectionBookingAggregate.BookCollectionWithCarrier(
-                    (ShipmentProcessCategory)message.ProcessCategory,
-                    state
-                )
+            state => CollectionBookingAggregate.BookCollectionWithCarrier((ShipmentProcessCategory)message.ProcessCategory, state)
         );
     }
 
-    private Task HandleCarrierIntegrationCollectionBookedWithCarrier(
-        CarrierIntegrationEvents.CollectionBookedWithCarrier message
-    )
+    private Task HandleCarrierIntegrationCollectionBookedWithCarrier(CarrierIntegrationEvents.CollectionBookedWithCarrier message)
     {
         var shipmentId = (CollectionBookingId)message.ShipmentId;
 
         return InvokeAggregate(
             shipmentId,
-            state =>
-                CollectionBookingAggregate.SetAsBookedWithCarrier(
-                    state.ProcessCategory,
-                    state,
-                    message.BookingReference
-                )
+            state => CollectionBookingAggregate.SetAsBookedWithCarrier(state.ProcessCategory, state, message.BookingReference)
         );
     }
 
-    private Task HandleCarrierIntegrationCarrierCollectionBookingFailed(
-        CarrierIntegrationEvents.CarrierCollectionBookingFailed message
-    )
+    private Task HandleCarrierIntegrationCarrierCollectionBookingFailed(CarrierIntegrationEvents.CarrierCollectionBookingFailed message)
     {
         var shipmentId = (CollectionBookingId)message.ShipmentId;
 
         return InvokeAggregate(
             shipmentId,
-            state =>
-                CollectionBookingAggregate.SetAsCarrierCollectionBookingFailed(
-                    state.ProcessCategory,
-                    state,
-                    message.Failure
-                )
+            state => CollectionBookingAggregate.SetAsCarrierCollectionBookingFailed(state.ProcessCategory, state, message.Failure)
         );
     }
 
-    private async Task InvokeAggregate(
-        CollectionBookingId shipmentId,
-        Func<CollectionBookingState, IEnumerable<BaseCollectionBookingEvent>> action
-    )
+    private async Task InvokeAggregate(CollectionBookingId shipmentId, Func<CollectionBookingState, IEnumerable<BaseCollectionBookingEvent>> action)
     {
         CollectionBookingState collectionBookingState = default;
         var newEvents = await collectionBookingRepository.AddEvents(
@@ -181,5 +141,4 @@ public class CollectionBookingSubprocess(
     }
 }
 
-public class TriggerNotSupportedException(string triggerType)
-    : Exception($"Trigger '{triggerType}' is not supported");
+public class TriggerNotSupportedException(string triggerType) : Exception($"Trigger '{triggerType}' is not supported");

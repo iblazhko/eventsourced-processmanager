@@ -10,10 +10,7 @@ public class MassTransitEventStorePublisherAdapter(IBus bus) : IEventPublisher
 {
     private IBus Bus { get; } = bus;
 
-    public async Task Publish(
-        IEnumerable<EventWithMetadata> events,
-        CancellationToken cancellationToken = default
-    )
+    public async Task Publish(IEnumerable<EventWithMetadata> events, CancellationToken cancellationToken = default)
     {
         foreach (var evt in events)
         {
