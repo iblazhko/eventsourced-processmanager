@@ -15,9 +15,7 @@ using EventSourcedPM.Messaging.Orchestration.Events;
 using EventSourcedPM.Ports.EventStore;
 using EventStore.Client;
 using Marten;
-using Marten.Events;
 using Microsoft.Extensions.DependencyInjection;
-using Weasel.Core;
 
 public static class EventStoreConfigurator
 {
@@ -31,13 +29,13 @@ public static class EventStoreConfigurator
             .AddMarten(options =>
             {
                 options.Connection(settings.Postgres.GetConnectionString());
-                options.Events.StreamIdentity = StreamIdentity.AsString;
+                options.Events.StreamIdentity = JasperFx.Events.StreamIdentity.AsString;
                 options.Events.MetadataConfig.HeadersEnabled = true;
                 options.Events.MetadataConfig.CausationIdEnabled = true;
                 options.Events.MetadataConfig.CorrelationIdEnabled = true;
 
                 // Note: AutoCreateSchemaObjects most likely should be turned off in a real deployment
-                options.AutoCreateSchemaObjects = AutoCreate.All;
+                options.AutoCreateSchemaObjects = JasperFx.AutoCreate.All;
             })
             .ApplyAllDatabaseChangesOnStartup();
 

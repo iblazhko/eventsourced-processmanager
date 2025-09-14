@@ -226,6 +226,7 @@ function Get_DockerComposeAppFile {
 function Get_DockerComposeInfraServicesFile {
     [string]$cpuArchitecture = [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture
     switch ($cpuArchitecture.ToLower()) {
+        "x64" { "docker-compose.infra.services-amd64.yaml" }
         "amd64" { "docker-compose.infra.services-amd64.yaml" }
         "arm64" { "docker-compose.infra.services-arm64.yaml" }
         default { throw "CPU architecture $cpuArchitecture is not supported." }

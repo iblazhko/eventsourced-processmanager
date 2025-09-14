@@ -30,7 +30,7 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>(
 
     private bool isLocked;
 
-    private IEnumerable<EventWithMetadata> MapFromMartenEvents(IReadOnlyList<Marten.Events.IEvent> mtEvents) =>
+    private IEnumerable<EventWithMetadata> MapFromMartenEvents(IReadOnlyList<JasperFx.Events.IEvent> mtEvents) =>
         mtEvents.Select(e => new EventWithMetadata(
             e.Data,
             EventMetadata.NewEventMetadata(e.EventType.FullName, EventTimeProvider.GetUtcNow().UtcDateTime)
@@ -147,7 +147,7 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>(
 
             await EventPublisher.Publish(newEvents, cancellationToken);
         }
-        catch (Marten.Exceptions.EventStreamUnexpectedMaxEventIdException e)
+        catch (JasperFx.Events.EventStreamUnexpectedMaxEventIdException e)
         {
             throw new ConcurrencyException(StreamId, e);
         }
