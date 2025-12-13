@@ -34,7 +34,7 @@ respective Ports, and there are Adapters for actual implementation.
 This solution uses [MassTransit](https://masstransit.io/) /
 [RabbitMQ](https://rabbitmq.com/) for the underlying message bus implementation,
 and [Marten](https://martendb.io/) / [PostgreSQL](https://www.postgresql.org/) or
-[EventStore DB](https://www.eventstore.com/eventstoredb)
+[Kurrent DB](https://www.kurrent.io/) (former EventStore DB)
 for the underlying EventStore implementation.
 
 ## Business Domain
@@ -154,7 +154,7 @@ stored in *Collection Booking* event stream.
 
 ## Running the Solution
 
-Assuming that .NET 9 SDK, PowerShell Core 7, and Docker with Docker Compose
+Assuming that .NET 10 SDK, PowerShell Core 7, and Docker with Docker Compose
 plugin are installed.
 
 Select EventStore adapter by editing `EventStoreAdapter` parameter in

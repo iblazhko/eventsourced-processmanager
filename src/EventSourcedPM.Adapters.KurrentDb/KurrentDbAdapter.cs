@@ -1,27 +1,27 @@
-﻿namespace EventSourcedPM.Adapters.EventStoreDb;
+﻿namespace EventSourcedPM.Adapters.KurrentDb;
 
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventSourcedPM.Ports.EventStore;
-using EventStore.Client;
+using KurrentDB.Client;
 
-public class EventStoreDbAdapter<TState, TEvent>(
-    EventStoreClient client,
+public class KurrentDbAdapter<TState, TEvent>(
+    KurrentDBClient client,
     IEventPublisher eventPublisher,
     IEventTypeResolver eventTypeResolver,
     IEventSerializer eventSerializer,
     TimeProvider timeProvider
 ) : IEventStore<TState, TEvent>
 {
-    private EventStoreClient Client { get; } = client;
+    private KurrentDBClient Client { get; } = client;
     private IEventPublisher EventPublisher { get; } = eventPublisher;
     private IEventTypeResolver EventTypeResolver { get; } = eventTypeResolver;
     private IEventSerializer EventSerializer { get; } = eventSerializer;
     private TimeProvider EventTimeProvider { get; } = timeProvider;
 
     public IEventStreamSession<TState, TEvent> Open(EventStreamId streamId) =>
-        new EventStoreDbEventStreamSession<TState, TEvent>(streamId, Client, EventPublisher, EventTypeResolver, EventSerializer, EventTimeProvider);
+        new KurrentDbEventStreamSession<TState, TEvent>(streamId, Client, EventPublisher, EventTypeResolver, EventSerializer, EventTimeProvider);
 
     public async Task<bool> Contains(EventStreamId streamId, CancellationToken cancellationToken = default)
     {

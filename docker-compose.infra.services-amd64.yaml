@@ -1,6 +1,6 @@
 services:
   eventstore:
-    image: eventstore/eventstore:24.10.7-bookworm-slim
+    image: kurrentplatform/kurrentdb:25.1
     volumes:
       - eventstore-data:/var/lib/eventstore
     ports:

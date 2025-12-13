@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <ItemGroup>
     <PackageReference Include="MassTransit" />
     <PackageReference Include="Serilog" />
@@ -11,5 +10,4 @@
     <ProjectReference Include="..\EventSourcedPM.Ports.CarrierIntegration\EventSourcedPM.Ports.CarrierIntegration.csproj" />
     <ProjectReference Include="..\EventSourcedPM.Ports.MessageBus\EventSourcedPM.Ports.MessageBus.csproj" />
   </ItemGroup>
-
 </Project>

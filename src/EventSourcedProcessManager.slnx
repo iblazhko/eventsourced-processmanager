@@ -1,0 +1,29 @@
+<Solution>
+    <Folder Name="/Ports and Adapters/">
+        <Project Path="EventSourcedPM.Adapter.CarrierIntegrationStub/EventSourcedPM.Adapter.CarrierIntegrationStub.csproj" />
+        <Project Path="EventSourcedPM.Adapters.KurrentDb/EventSourcedPM.Adapters.KurrentDb.csproj" />
+        <Project Path="EventSourcedPM.Adapters.MartenDbEventStore/EventSourcedPM.Adapters.MartenDbEventStore.csproj" />
+        <Project Path="EventSourcedPM.Adapters.MassTransitEventStorePublisher/EventSourcedPM.Adapters.MassTransitEventStorePublisher.csproj" />
+        <Project Path="EventSourcedPM.Adapters.MassTransitMessageBus/EventSourcedPM.Adapters.MassTransitMessageBus.csproj" />
+        <Project Path="EventSourcedPM.Ports.CarrierIntegration/EventSourcedPM.Ports.CarrierIntegration.csproj" />
+        <Project Path="EventSourcedPM.Ports.EventStore/EventSourcedPM.Ports.EventStore.csproj" />
+        <Project Path="EventSourcedPM.Ports.MessageBus/EventSourcedPM.Ports.MessageBus.csproj" />
+    </Folder>
+    <Folder Name="/_Devops/">
+        <File Path="../build.ps1" />
+        <File Path="../docker-compose.app-scaled.yaml" />
+        <File Path="../docker-compose.app.yaml" />
+        <File Path="../docker-compose.infra.yaml" />
+        <File Path="../proxy/proxy.conf" />
+        <File Path="../proxy/proxy.Dockerfile" />
+        <File Path="../version.yaml" />
+    </Folder>
+    <Folder Name="/_Doc/">
+        <File Path="../README.md" />
+    </Folder>
+    <Project Path="EventSourcedPM.Application/EventSourcedPM.Application.csproj" />
+    <Project Path="EventSourcedPM.Configuration/EventSourcedPM.Configuration.csproj" />
+    <Project Path="EventSourcedPM.Domain/EventSourcedPM.Domain.csproj" />
+    <Project Path="EventSourcedPM.Messaging/EventSourcedPM.Messaging.csproj" />
+    <Project Path="EventSourcedPM/EventSourcedPM.csproj" />
+</Solution>

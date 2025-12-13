@@ -22,7 +22,7 @@ $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
 $repositoryDir = (Get-Item $PSScriptRoot).FullName
 $srcDir = Join-Path $repositoryDir "src"
-$dotnetSolutionFile = Get-ChildItem -Path $srcDir -Filter "*.sln" | Select-Object -First 1
+$dotnetSolutionFile = Get-ChildItem -Path $srcDir -Filter "*.slnx" | Select-Object -First 1
 $buildCoreVersionFile = Join-Path $repositoryDir "version.yaml"
 $buildCoreVersion = $(Get-Content "$buildCoreVersionFile").Substring("version:".Length).Trim()
 $buildVersion = "$buildCoreVersion$VersionSuffix"

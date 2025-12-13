@@ -1,7 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-    <ItemGroup>
-      <ProjectReference Include="..\EventSourcedPM.Ports.CarrierIntegration\EventSourcedPM.Ports.CarrierIntegration.csproj" />
-    </ItemGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="..\EventSourcedPM.Ports.CarrierIntegration\EventSourcedPM.Ports.CarrierIntegration.csproj" />
+  </ItemGroup>
 </Project>

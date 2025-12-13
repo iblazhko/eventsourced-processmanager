@@ -1,6 +1,6 @@
 services:
   eventstore:
-    image: eventstore/eventstore:24.10.7-alpha-arm64v8
+    image: kurrentplatform/kurrentdb:25.1.0-experimental-arm64-8.0-jammy
     volumes:
       - eventstore-data:/var/lib/eventstore
     ports:

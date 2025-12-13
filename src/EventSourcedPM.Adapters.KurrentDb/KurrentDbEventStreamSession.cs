@@ -1,4 +1,4 @@
-﻿namespace EventSourcedPM.Adapters.EventStoreDb;
+﻿namespace EventSourcedPM.Adapters.KurrentDb;
 
 using System;
 using System.Collections.Generic;
@@ -7,21 +7,21 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using EventSourcedPM.Ports.EventStore;
-using EventStore.Client;
+using KurrentDB.Client;
 using LanguageExt;
 using Serilog;
 using static LanguageExt.Prelude;
 
-internal sealed class EventStoreDbEventStreamSession<TState, TEvent>(
+internal sealed class KurrentDbEventStreamSession<TState, TEvent>(
     EventStreamId streamId,
-    EventStoreClient client,
+    KurrentDBClient client,
     IEventPublisher eventPublisher,
     IEventTypeResolver eventTypeResolver,
     IEventSerializer eventSerializer,
     TimeProvider timeProvider
 ) : IEventStreamSession<TState, TEvent>
 {
-    private EventStoreClient Client { get; } = client;
+    private KurrentDBClient Client { get; } = client;
     private IEventPublisher EventPublisher { get; } = eventPublisher;
     private IEventTypeResolver EventTypeResolver { get; } = eventTypeResolver;
     private IEventSerializer EventSerializer { get; } = eventSerializer;
@@ -143,7 +143,7 @@ internal sealed class EventStoreDbEventStreamSession<TState, TEvent>(
         {
             var writeResult = await Client.AppendToStreamAsync(
                 StreamId,
-                storedRevision.Some(r => StreamRevision.FromInt64(r)).None(StreamRevision.None),
+                storedRevision.Some(r => StreamState.StreamRevision((ulong)((long)r))).None(StreamState.NoStream),
                 newEvents.Select(evt => new EventData(
                     Uuid.NewUuid(),
                     EventTypeResolver.GetEventTypeName(evt.Event),
@@ -262,7 +262,7 @@ internal sealed class EventStoreDbEventStreamSession<TState, TEvent>(
             throw new SessionIsLockedException(StreamId);
     }
 
-    private async Task<bool> StreamExists(EventStoreClient.ReadStreamResult readResult)
+    private async Task<bool> StreamExists(KurrentDBClient.ReadStreamResult readResult)
     {
         try
         {

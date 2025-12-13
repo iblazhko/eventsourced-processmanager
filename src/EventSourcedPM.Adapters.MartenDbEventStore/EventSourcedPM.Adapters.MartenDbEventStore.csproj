@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <ItemGroup>
     <PackageReference Include="Marten" />
     <PackageReference Include="Serilog" />
@@ -8,5 +7,4 @@
   <ItemGroup>
     <ProjectReference Include="..\EventSourcedPM.Ports.EventStore\EventSourcedPM.Ports.EventStore.csproj" />
   </ItemGroup>
-  
 </Project>

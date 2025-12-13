@@ -1,7 +1,7 @@
 namespace EventSourcedPM.Configurators;
 
 using System;
-using EventSourcedPM.Adapters.EventStoreDb;
+using EventSourcedPM.Adapters.KurrentDb;
 using EventSourcedPM.Adapters.MartenDbEventStore;
 using EventSourcedPM.Adapters.MassTransitEventStorePublisher;
 using EventSourcedPM.Configuration;
@@ -13,7 +13,7 @@ using EventSourcedPM.Messaging.CollectionBooking.Events;
 using EventSourcedPM.Messaging.ManifestationAndDocuments.Events;
 using EventSourcedPM.Messaging.Orchestration.Events;
 using EventSourcedPM.Ports.EventStore;
-using EventStore.Client;
+using KurrentDB.Client;
 using Marten;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,9 +21,9 @@ public static class EventStoreConfigurator
 {
     public static IServiceCollection AddApplicationEventStore(this IServiceCollection services, ShipmentProcessSettings settings)
     {
-        var eventStoreClientSettings = EventStoreClientSettings.Create(settings.EventStore.GetConnectionString());
+        var eventStoreClientSettings = KurrentDBClientSettings.Create(settings.EventStore.GetConnectionString());
         eventStoreClientSettings.ConnectionName = nameof(EventSourcedPM);
-        services.AddSingleton(new EventStoreClient(eventStoreClientSettings));
+        services.AddSingleton(new KurrentDBClient(eventStoreClientSettings));
 
         services
             .AddMarten(options =>
@@ -49,15 +49,15 @@ public static class EventStoreConfigurator
 
                 services.AddSingleton<
                     IEventStore<ShipmentProcessState, BaseShipmentProcessEvent>,
-                    EventStoreDbAdapter<ShipmentProcessState, BaseShipmentProcessEvent>
+                    KurrentDbAdapter<ShipmentProcessState, BaseShipmentProcessEvent>
                 >();
                 services.AddSingleton<
                     IEventStore<ManifestationAndDocumentsState, BaseShipmentEvent>,
-                    EventStoreDbAdapter<ManifestationAndDocumentsState, BaseShipmentEvent>
+                    KurrentDbAdapter<ManifestationAndDocumentsState, BaseShipmentEvent>
                 >();
                 services.AddSingleton<
                     IEventStore<CollectionBookingState, BaseCollectionBookingEvent>,
-                    EventStoreDbAdapter<CollectionBookingState, BaseCollectionBookingEvent>
+                    KurrentDbAdapter<CollectionBookingState, BaseCollectionBookingEvent>
                 >();
                 break;
 

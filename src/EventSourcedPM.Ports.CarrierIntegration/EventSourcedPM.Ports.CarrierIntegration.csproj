@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-    <ItemGroup>
-      <PackageReference Include="MassTransit" />
-      <PackageReference Include="Serilog" />
-    </ItemGroup>
-
+  <ItemGroup>
+    <PackageReference Include="MassTransit" />
+    <PackageReference Include="Serilog" />
+  </ItemGroup>
 </Project>
