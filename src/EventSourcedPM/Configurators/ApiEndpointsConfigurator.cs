@@ -1,17 +1,13 @@
-namespace EventSourcedPM.Configurators;
-
-using System;
-using System.Linq;
 using EventSourcedPM.Domain.Aggregates.Orchestration;
 using EventSourcedPM.Domain.Models;
 using EventSourcedPM.Messaging.Orchestration.Commands;
 using EventSourcedPM.Messaging.Orchestration.Events;
 using EventSourcedPM.Ports.EventStore;
 using EventSourcedPM.Ports.MessageBus;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using MessagingModels = EventSourcedPM.Messaging.Models;
+
+namespace EventSourcedPM.Configurators;
 
 public static class ApiEndpointsConfigurator
 {

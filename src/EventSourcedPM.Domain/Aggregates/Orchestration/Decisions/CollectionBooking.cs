@@ -1,8 +1,7 @@
-namespace EventSourcedPM.Domain.Aggregates.Orchestration.Decisions;
-
-using System.Collections.Generic;
 using EventSourcedPM.Messaging.Orchestration.Events;
 using CollectionBookingEvents = EventSourcedPM.Messaging.CollectionBooking.Events;
+
+namespace EventSourcedPM.Domain.Aggregates.Orchestration.Decisions;
 
 public static partial class DecideThat
 {

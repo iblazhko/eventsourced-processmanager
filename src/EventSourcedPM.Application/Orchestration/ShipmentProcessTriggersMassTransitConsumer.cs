@@ -1,14 +1,13 @@
-namespace EventSourcedPM.Application.Orchestration;
-
-using System.Threading.Tasks;
 using EventSourcedPM.Messaging.Orchestration.Commands;
 using EventSourcedPM.Messaging.Orchestration.Events;
 using MassTransit;
 using CollectionBookingEvents = EventSourcedPM.Messaging.CollectionBooking.Events;
 using ManifestationAndDocumentsEvents = EventSourcedPM.Messaging.ManifestationAndDocuments.Events;
 
+namespace EventSourcedPM.Application.Orchestration;
+
 // ReSharper disable once ClassNeverInstantiated.Global
-public class ShipmentProcessTriggersConsumer(IShipmentProcessManager processManager)
+public class ShipmentProcessTriggersMassTransitConsumer(IShipmentProcessManager processManager)
     : IConsumer<ProcessShipment>,
         IConsumer<ShipmentProcessStarted>,
         IConsumer<ManifestationAndDocumentsStarted>,

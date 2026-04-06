@@ -1,7 +1,6 @@
-namespace EventSourcedPM.Domain.Aggregates.CollectionBooking;
-
-using System;
 using OneOf;
+
+namespace EventSourcedPM.Domain.Aggregates.CollectionBooking;
 
 public class CollectionBookingProcessStatus
     : OneOfBase<

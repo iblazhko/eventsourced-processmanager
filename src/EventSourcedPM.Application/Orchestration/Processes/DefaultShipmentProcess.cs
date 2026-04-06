@@ -1,6 +1,6 @@
-namespace EventSourcedPM.Application.Orchestration.Processes;
-
 using EventSourcedPM.Domain.Models;
+
+namespace EventSourcedPM.Application.Orchestration.Processes;
 
 public class DefaultShipmentProcess : InternationalShipmentProcessV1
 {

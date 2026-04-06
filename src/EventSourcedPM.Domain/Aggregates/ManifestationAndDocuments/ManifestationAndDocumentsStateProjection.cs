@@ -1,10 +1,8 @@
-namespace EventSourcedPM.Domain.Aggregates.ManifestationAndDocuments;
-
-using System;
-using System.Linq;
 using EventSourcedPM.Domain.Models;
 using EventSourcedPM.Messaging.ManifestationAndDocuments.Events;
 using EventSourcedPM.Ports.EventStore;
+
+namespace EventSourcedPM.Domain.Aggregates.ManifestationAndDocuments;
 
 public class ManifestationAndDocumentsStateProjection : IEventStreamProjection<ManifestationAndDocumentsState, BaseShipmentEvent>
 {

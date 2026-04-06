@@ -1,12 +1,10 @@
-namespace EventSourcedPM.Application.CollectionBooking;
-
-using System;
-using System.Threading.Tasks;
 using EventSourcedPM.Domain.Aggregates.CollectionBooking;
 using EventSourcedPM.Messaging.CollectionBooking.Events;
 using EventSourcedPM.Ports.MessageBus;
 using static EventSourcedPM.Application.Orchestration.DelegatorLogger;
 using CarrierIntegrationCommands = EventSourcedPM.Ports.CarrierIntegration.Commands;
+
+namespace EventSourcedPM.Application.CollectionBooking;
 
 public interface ICollectionBookingDelegator
 {

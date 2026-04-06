@@ -1,9 +1,3 @@
-namespace EventSourcedPM.Application.Orchestration;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using EventSourcedPM.Domain.Aggregates.Orchestration;
 using EventSourcedPM.Domain.Models;
 using EventSourcedPM.Messaging;
@@ -11,6 +5,8 @@ using EventSourcedPM.Messaging.Orchestration.Commands;
 using EventSourcedPM.Messaging.Orchestration.Events;
 using EventSourcedPM.Ports.EventStore;
 using Serilog;
+
+namespace EventSourcedPM.Application.Orchestration;
 
 public interface IShipmentProcessManager
 {

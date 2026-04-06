@@ -1,8 +1,6 @@
-namespace EventSourcedPM.Domain.Services;
-
-using System;
-using System.Threading.Tasks;
 using EventSourcedPM.Messaging.Models;
+
+namespace EventSourcedPM.Domain.Services;
 
 public interface IGenerateCustomsInvoice
 {

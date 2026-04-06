@@ -1,8 +1,6 @@
 // ReSharper disable once CheckNamespace
 namespace EventSourcedPM.Messaging.Models;
 
-using System;
-
 public class ShipmentLeg
 {
     public Guid CarrierId { get; init; }

@@ -1,6 +1,6 @@
-namespace EventSourcedPM.Configuration;
-
 using Microsoft.Extensions.Configuration;
+
+namespace EventSourcedPM.Configuration;
 
 public static class SettingsResolver
 {

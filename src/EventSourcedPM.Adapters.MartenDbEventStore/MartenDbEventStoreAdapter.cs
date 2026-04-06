@@ -1,10 +1,7 @@
-﻿namespace EventSourcedPM.Adapters.MartenDbEventStore;
-
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using EventSourcedPM.Ports.EventStore;
+﻿using EventSourcedPM.Ports.EventStore;
 using Marten;
+
+namespace EventSourcedPM.Adapters.MartenDbEventStore;
 
 public sealed class MartenDbEventStoreAdapter<TState, TEvent>(IDocumentStore documentStore, IEventPublisher eventPublisher, TimeProvider timeProvider)
     : IEventStore<TState, TEvent>

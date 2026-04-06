@@ -1,8 +1,7 @@
-namespace EventSourcedPM.Domain.Services;
-
-using System;
 using EventSourcedPM.Domain.Models;
 using OneOf;
+
+namespace EventSourcedPM.Domain.Services;
 
 public readonly record struct CollectionBookingTime(DateTime BookAt); // assuming UTC
 

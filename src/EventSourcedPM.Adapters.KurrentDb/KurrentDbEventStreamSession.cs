@@ -1,16 +1,11 @@
-﻿namespace EventSourcedPM.Adapters.KurrentDb;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 using EventSourcedPM.Ports.EventStore;
 using KurrentDB.Client;
 using LanguageExt;
 using Serilog;
 using static LanguageExt.Prelude;
+
+namespace EventSourcedPM.Adapters.KurrentDb;
 
 internal sealed class KurrentDbEventStreamSession<TState, TEvent>(
     EventStreamId streamId,
@@ -117,7 +112,8 @@ internal sealed class KurrentDbEventStreamSession<TState, TEvent>(
                         : throw new InvalidOperationException(
                             $"Event ${e.Event.GetType().FullName} is not compatible with ${typeof(TEvent).FullName}"
                         )
-                ) ?? []
+                )
+                ?? []
         );
     }
 

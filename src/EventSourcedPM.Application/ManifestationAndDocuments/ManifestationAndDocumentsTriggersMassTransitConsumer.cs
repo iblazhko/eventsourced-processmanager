@@ -1,13 +1,12 @@
-namespace EventSourcedPM.Application.ManifestationAndDocuments;
-
-using System.Threading.Tasks;
 using EventSourcedPM.Messaging.ManifestationAndDocuments.Commands;
 using EventSourcedPM.Messaging.ManifestationAndDocuments.Events;
 using MassTransit;
 using CarrierIntegrationEvents = EventSourcedPM.Ports.CarrierIntegration.Events;
 
+namespace EventSourcedPM.Application.ManifestationAndDocuments;
+
 // ReSharper disable once ClassNeverInstantiated.Global
-public class ManifestationAndDocumentsTriggersConsumer(IManifestationAndDocumentsSubprocess manifestationAndDocumentsSubprocess)
+public class ManifestationAndDocumentsTriggersMassTransitConsumer(IManifestationAndDocumentsSubprocess manifestationAndDocumentsSubprocess)
     : IConsumer<CreateShipment>,
         IConsumer<GenerateCustomsInvoice>,
         IConsumer<ManifestShipment>,

@@ -1,10 +1,8 @@
-namespace EventSourcedPM.Domain.Aggregates.CollectionBooking;
-
-using System;
-using System.Collections.Generic;
 using EventSourcedPM.Domain.Models;
 using EventSourcedPM.Domain.Services;
 using EventSourcedPM.Messaging.CollectionBooking.Events;
+
+namespace EventSourcedPM.Domain.Aggregates.CollectionBooking;
 
 public static class CollectionBookingAggregate
 {

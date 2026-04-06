@@ -1,9 +1,7 @@
-namespace EventSourcedPM.Configuration;
-
-using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
+
+namespace EventSourcedPM.Configuration;
 
 public static class StringBuilderExtensions
 {

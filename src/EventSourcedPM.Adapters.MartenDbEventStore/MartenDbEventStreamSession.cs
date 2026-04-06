@@ -1,14 +1,9 @@
-﻿namespace EventSourcedPM.Adapters.MartenDbEventStore;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 using EventSourcedPM.Ports.EventStore;
 using Marten;
 using Serilog;
+
+namespace EventSourcedPM.Adapters.MartenDbEventStore;
 
 internal sealed class MartenDbEventStreamSession<TState, TEvent>(
     EventStreamId streamId,
@@ -115,7 +110,8 @@ internal sealed class MartenDbEventStreamSession<TState, TEvent>(
                         : throw new InvalidOperationException(
                             $"Event ${e.Event.GetType().FullName} is not compatible with ${typeof(TEvent).FullName}"
                         )
-                ) ?? []
+                )
+                ?? []
         );
     }
 

@@ -1,9 +1,6 @@
-﻿using System;
-using EventSourcedPM;
+﻿using EventSourcedPM;
 using EventSourcedPM.Configuration;
 using EventSourcedPM.Configurators;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 
 var settings = SettingsResolver.GetSettings();
 
@@ -21,10 +18,11 @@ else
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls(settings.ApiBaseUrl);
+builder.Host.AddApplicationMessageBus(settings);
 
 // csharpier-ignore
 builder.Services
-    .AddApplicationSerilog()
+    .AddApplicationSerilog(settings)
     .AddApplicationMessageBus(settings)
     .AddApplicationEventStore(settings)
     .AddApplicationProcessManager();

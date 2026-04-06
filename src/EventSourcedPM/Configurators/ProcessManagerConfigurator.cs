@@ -1,10 +1,9 @@
-namespace EventSourcedPM.Configurators;
-
 using EventSourcedPM.Application.CollectionBooking;
 using EventSourcedPM.Application.ManifestationAndDocuments;
 using EventSourcedPM.Application.Orchestration;
 using EventSourcedPM.Domain.Services;
-using Microsoft.Extensions.DependencyInjection;
+
+namespace EventSourcedPM.Configurators;
 
 public static class ProcessManagerConfigurator
 {

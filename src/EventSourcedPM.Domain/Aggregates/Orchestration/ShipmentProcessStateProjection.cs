@@ -1,10 +1,8 @@
-namespace EventSourcedPM.Domain.Aggregates.Orchestration;
-
-using System;
-using System.Linq;
 using EventSourcedPM.Domain.Models;
 using EventSourcedPM.Messaging.Orchestration.Events;
 using EventSourcedPM.Ports.EventStore;
+
+namespace EventSourcedPM.Domain.Aggregates.Orchestration;
 
 // ReSharper disable once UnusedType.Global
 public class ShipmentProcessStateProjection : IEventStreamProjection<ShipmentProcessState, BaseShipmentProcessEvent>

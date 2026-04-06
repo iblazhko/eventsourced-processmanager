@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="WolverineFx" />
+    <PackageReference Include="Serilog" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EventSourcedPM.Application\EventSourcedPM.Application.csproj" />
+    <ProjectReference Include="..\EventSourcedPM.Ports.MessageBus\EventSourcedPM.Ports.MessageBus.csproj" />
+  </ItemGroup>
+</Project>

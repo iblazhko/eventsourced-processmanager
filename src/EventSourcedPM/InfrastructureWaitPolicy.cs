@@ -1,12 +1,10 @@
-namespace EventSourcedPM;
-
-using System;
-using System.Linq;
 using System.Net.Sockets;
 using EventSourcedPM.Configuration;
 using EventSourcedPM.Domain.Models;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
+
+namespace EventSourcedPM;
 
 public static class InfrastructureWaitPolicy
 {

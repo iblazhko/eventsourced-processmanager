@@ -1,7 +1,5 @@
 namespace EventSourcedPM.Domain.Models;
 
-using System;
-
 public static class ModelMappingExtensions
 {
     // ReSharper disable RedundantNameQualifier

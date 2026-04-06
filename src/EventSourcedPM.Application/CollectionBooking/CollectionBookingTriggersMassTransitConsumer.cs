@@ -1,12 +1,11 @@
-namespace EventSourcedPM.Application.CollectionBooking;
-
-using System.Threading.Tasks;
 using EventSourcedPM.Messaging.CollectionBooking.Commands;
 using MassTransit;
 using CarrierIntegrationEvents = EventSourcedPM.Ports.CarrierIntegration.Events;
 
+namespace EventSourcedPM.Application.CollectionBooking;
+
 // ReSharper disable once ClassNeverInstantiated.Global
-public class CollectionBookingTriggersConsumer(ICollectionBookingSubprocess collectionBookingSubprocess)
+public class CollectionBookingTriggersMassTransitConsumer(ICollectionBookingSubprocess collectionBookingSubprocess)
     : IConsumer<CreateCollectionBooking>,
         IConsumer<ScheduleCollectionBooking>,
         IConsumer<BookCollectionWithCarrier>,

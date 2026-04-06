@@ -1,9 +1,3 @@
-namespace EventSourcedPM.Application.CollectionBooking;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using EventSourcedPM.Domain.Aggregates.CollectionBooking;
 using EventSourcedPM.Domain.Models;
 using EventSourcedPM.Domain.Services;
@@ -13,6 +7,8 @@ using EventSourcedPM.Ports.EventStore;
 using EventSourcedPM.Ports.MessageBus;
 using Serilog;
 using CarrierIntegrationEvents = EventSourcedPM.Ports.CarrierIntegration.Events;
+
+namespace EventSourcedPM.Application.CollectionBooking;
 
 public interface ICollectionBookingSubprocess
 {
@@ -38,6 +34,7 @@ public class CollectionBookingSubprocess(
             BookCollectionWithCarrier x => HandleBookCollectionWithCarrier(x),
             CarrierIntegrationEvents.CollectionBookedWithCarrier x => HandleCarrierIntegrationCollectionBookedWithCarrier(x),
             CarrierIntegrationEvents.CarrierCollectionBookingFailed x => HandleCarrierIntegrationCarrierCollectionBookingFailed(x),
+            CollectionBookingScheduled => Task.CompletedTask,
             _ => throw new TriggerNotSupportedException(trigger.GetType().FullName),
         };
     }

@@ -4,6 +4,7 @@
     <PackageReference Include="Marten.AspNetCore" />
     <PackageReference Include="MassTransit" />
     <PackageReference Include="MassTransit.RabbitMQ" />
+    <PackageReference Include="WolverineFx.RabbitMQ" />
     <PackageReference Include="OneOf" />
     <PackageReference Include="Polly" />
     <PackageReference Include="Polly.Contrib.WaitAndRetry" />
@@ -18,6 +19,8 @@
     <ProjectReference Include="..\EventSourcedPM.Adapters.MartenDbEventStore\EventSourcedPM.Adapters.MartenDbEventStore.csproj" />
     <ProjectReference Include="..\EventSourcedPM.Adapters.MassTransitEventStorePublisher\EventSourcedPM.Adapters.MassTransitEventStorePublisher.csproj" />
     <ProjectReference Include="..\EventSourcedPM.Adapters.MassTransitMessageBus\EventSourcedPM.Adapters.MassTransitMessageBus.csproj" />
+    <ProjectReference Include="..\EventSourcedPM.Adapters.WolverineMessageBus\EventSourcedPM.Adapters.WolverineMessageBus.csproj" />
+    <ProjectReference Include="..\EventSourcedPM.Adapters.WolverineEventStorePublisher\EventSourcedPM.Adapters.WolverineEventStorePublisher.csproj" />
     <ProjectReference Include="..\EventSourcedPM.Application\EventSourcedPM.Application.csproj" />
     <ProjectReference Include="..\EventSourcedPM.Domain\EventSourcedPM.Domain.csproj" />
     <ProjectReference Include="..\EventSourcedPM.Ports.EventStore\EventSourcedPM.Ports.EventStore.csproj" />

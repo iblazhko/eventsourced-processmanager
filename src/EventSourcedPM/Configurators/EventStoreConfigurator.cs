@@ -1,9 +1,7 @@
-namespace EventSourcedPM.Configurators;
-
-using System;
 using EventSourcedPM.Adapters.KurrentDb;
 using EventSourcedPM.Adapters.MartenDbEventStore;
 using EventSourcedPM.Adapters.MassTransitEventStorePublisher;
+using EventSourcedPM.Adapters.WolverineEventStorePublisher;
 using EventSourcedPM.Configuration;
 using EventSourcedPM.Domain.Aggregates.CollectionBooking;
 using EventSourcedPM.Domain.Aggregates.ManifestationAndDocuments;
@@ -15,7 +13,8 @@ using EventSourcedPM.Messaging.Orchestration.Events;
 using EventSourcedPM.Ports.EventStore;
 using KurrentDB.Client;
 using Marten;
-using Microsoft.Extensions.DependencyInjection;
+
+namespace EventSourcedPM.Configurators;
 
 public static class EventStoreConfigurator
 {
@@ -39,7 +38,10 @@ public static class EventStoreConfigurator
             })
             .ApplyAllDatabaseChangesOnStartup();
 
-        services.AddSingleton<IEventPublisher, MassTransitEventStorePublisherAdapter>();
+        if (settings.MessageBusAdapter == "Wolverine")
+            services.AddSingleton<IEventPublisher, WolverineEventStorePublisherAdapter>();
+        else
+            services.AddSingleton<IEventPublisher, MassTransitEventStorePublisherAdapter>();
 
         switch (settings.EventStoreAdapter)
         {

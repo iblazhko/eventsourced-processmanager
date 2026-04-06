@@ -1,7 +1,6 @@
-namespace EventSourcedPM.Messaging.ManifestationAndDocuments.Events;
-
-using System;
 using EventSourcedPM.Messaging.Models;
+
+namespace EventSourcedPM.Messaging.ManifestationAndDocuments.Events;
 
 public class ShipmentInitialized : BaseShipmentEvent
 {

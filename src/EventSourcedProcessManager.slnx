@@ -5,6 +5,8 @@
         <Project Path="EventSourcedPM.Adapters.MartenDbEventStore/EventSourcedPM.Adapters.MartenDbEventStore.csproj" />
         <Project Path="EventSourcedPM.Adapters.MassTransitEventStorePublisher/EventSourcedPM.Adapters.MassTransitEventStorePublisher.csproj" />
         <Project Path="EventSourcedPM.Adapters.MassTransitMessageBus/EventSourcedPM.Adapters.MassTransitMessageBus.csproj" />
+        <Project Path="EventSourcedPM.Adapters.WolverineEventStorePublisher/EventSourcedPM.Adapters.WolverineEventStorePublisher.csproj" />
+        <Project Path="EventSourcedPM.Adapters.WolverineMessageBus/EventSourcedPM.Adapters.WolverineMessageBus.csproj" />
         <Project Path="EventSourcedPM.Ports.CarrierIntegration/EventSourcedPM.Ports.CarrierIntegration.csproj" />
         <Project Path="EventSourcedPM.Ports.EventStore/EventSourcedPM.Ports.EventStore.csproj" />
         <Project Path="EventSourcedPM.Ports.MessageBus/EventSourcedPM.Ports.MessageBus.csproj" />

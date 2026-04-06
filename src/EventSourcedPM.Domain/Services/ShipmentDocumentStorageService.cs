@@ -1,8 +1,7 @@
-namespace EventSourcedPM.Domain.Services;
-
-using System.Threading.Tasks;
 using EventSourcedPM.Domain.Aggregates.ManifestationAndDocuments;
 using EventSourcedPM.Domain.Models;
+
+namespace EventSourcedPM.Domain.Services;
 
 public interface IStoreShipmentDocument
 {

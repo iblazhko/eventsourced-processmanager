@@ -1,5 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="Serilog" />
+    <PackageReference Include="WolverineFx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\EventSourcedPM.Ports.CarrierIntegration\EventSourcedPM.Ports.CarrierIntegration.csproj" />
   </ItemGroup>
 </Project>

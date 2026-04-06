@@ -1,6 +1,6 @@
-namespace EventSourcedPM.Messaging.ManifestationAndDocuments.Commands;
-
 using EventSourcedPM.Messaging.Models;
+
+namespace EventSourcedPM.Messaging.ManifestationAndDocuments.Commands;
 
 public class CreateShipment : BaseShipmentCommand
 {

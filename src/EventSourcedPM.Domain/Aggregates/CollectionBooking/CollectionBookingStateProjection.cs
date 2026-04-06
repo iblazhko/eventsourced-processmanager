@@ -1,9 +1,8 @@
-namespace EventSourcedPM.Domain.Aggregates.CollectionBooking;
-
-using System;
 using EventSourcedPM.Domain.Models;
 using EventSourcedPM.Messaging.CollectionBooking.Events;
 using EventSourcedPM.Ports.EventStore;
+
+namespace EventSourcedPM.Domain.Aggregates.CollectionBooking;
 
 // ReSharper disable once UnusedType.Global
 public class CollectionBookingStateProjection : IEventStreamProjection<CollectionBookingState, BaseCollectionBookingEvent>

@@ -1,9 +1,7 @@
-namespace EventSourcedPM.Application.Orchestration;
-
-using System;
-using System.Collections.Generic;
 using EventSourcedPM.Application.Orchestration.Processes;
 using EventSourcedPM.Domain.Models;
+
+namespace EventSourcedPM.Application.Orchestration;
 
 public interface IShipmentProcessRegistry
 {

@@ -1,7 +1,6 @@
-namespace EventSourcedPM.Domain.Aggregates.Orchestration;
-
-using System;
 using EventSourcedPM.Domain.Models;
+
+namespace EventSourcedPM.Domain.Aggregates.Orchestration;
 
 public record ShipmentProcessState(
     ShipmentProcessCategory Category,

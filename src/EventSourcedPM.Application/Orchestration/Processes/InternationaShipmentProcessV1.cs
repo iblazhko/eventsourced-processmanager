@@ -1,12 +1,11 @@
-namespace EventSourcedPM.Application.Orchestration.Processes;
-
-using System.Collections.Generic;
 using EventSourcedPM.Domain.Aggregates.Orchestration;
 using EventSourcedPM.Domain.Aggregates.Orchestration.Decisions;
 using EventSourcedPM.Domain.Models;
 using EventSourcedPM.Messaging.Orchestration.Events;
 using CollectionBookingEvents = EventSourcedPM.Messaging.CollectionBooking.Events;
 using ManifestationAndDocumentsEvents = EventSourcedPM.Messaging.ManifestationAndDocuments.Events;
+
+namespace EventSourcedPM.Application.Orchestration.Processes;
 
 public class InternationalShipmentProcessV1 : IShipmentProcess
 {

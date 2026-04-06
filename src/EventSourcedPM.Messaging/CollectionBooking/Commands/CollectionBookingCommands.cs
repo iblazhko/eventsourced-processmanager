@@ -1,6 +1,6 @@
-namespace EventSourcedPM.Messaging.CollectionBooking.Commands;
-
 using EventSourcedPM.Messaging.Models;
+
+namespace EventSourcedPM.Messaging.CollectionBooking.Commands;
 
 public class CreateCollectionBooking : BaseCollectionBookingCommand
 {

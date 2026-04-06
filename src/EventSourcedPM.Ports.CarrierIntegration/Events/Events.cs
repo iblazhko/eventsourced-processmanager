@@ -1,7 +1,5 @@
 namespace EventSourcedPM.Ports.CarrierIntegration.Events;
 
-using System;
-
 public class ShipmentManifestedWithCarrier
 {
     public string ShipmentId { get; init; }

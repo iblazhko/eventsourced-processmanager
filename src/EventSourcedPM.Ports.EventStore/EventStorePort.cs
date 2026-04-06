@@ -1,11 +1,7 @@
-﻿namespace EventSourcedPM.Ports.EventStore;
-
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
+
+namespace EventSourcedPM.Ports.EventStore;
 
 public readonly record struct EventStreamId
 {

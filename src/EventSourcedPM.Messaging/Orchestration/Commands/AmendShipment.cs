@@ -1,6 +1,6 @@
-namespace EventSourcedPM.Messaging.Orchestration.Commands;
-
 using EventSourcedPM.Messaging.Models;
+
+namespace EventSourcedPM.Messaging.Orchestration.Commands;
 
 public class AmendShipment
 {

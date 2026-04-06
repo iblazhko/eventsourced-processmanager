@@ -1,7 +1,5 @@
 namespace EventSourcedPM.Ports.CarrierIntegration.Commands;
 
-using System;
-
 public class ManifestShipmentWithCarrier
 {
     // ReSharper disable UnusedAutoPropertyAccessor.Global

@@ -4,6 +4,7 @@
 
 When implementing a long-running business processes, one option to do it
 is to use a state machine. There may be a few concerns about that:
+
 * If state machine persists its state to e.g. a SQL database and uses CRUD
   operations, it may be difficult to see how we got into a given state
 * If a business process is long-running, we may need to change the process
@@ -42,6 +43,7 @@ for the underlying EventStore implementation.
 In this solution we will be using shipment business domain.
 
 Key concepts:
+
 * We are assuming that we will be using multiple *Carriers* to complete the
   *Shipment* journey, to optimise the cost
 * *Shipment*: description of goods being sent, and information about what
@@ -55,6 +57,7 @@ Key concepts:
   (if collection booking is required), and set of shipment documents
 
 A business requirements may look like this:
+
 * Validate user input
 * Decide on what kind of shipment it is (domestic or international, do we need
   to worry about customs etc.); this defines what type of process will be used
@@ -260,6 +263,7 @@ order by timestamp;
 ![MartenDB Shipment Process Event Stream](./doc/MartenDB-ShipmentCollectionBookingEvents.png)
 
 If `EventStoreDB` adapter is used, look at event streams
+
 * `http://localhost:2113/web/index.html#/streams/{shipmentId}-Process`
 * `http://localhost:2113/web/index.html#/streams/{shipmentId}-Shipmet`
 * `http://localhost:2113/web/index.html#/streams/{shipmentId}-Collection`
@@ -276,6 +280,7 @@ Get shipment process outcome via API:
 ```bash
 http get http://localhost:43210/V74YCBYHC8A0
 ```
+
 ```json
 {
     "collectionBookingReference": "3a0a7bc84fac401d80f76338ffa7fcbf",
@@ -392,7 +397,7 @@ messages are processed, there are ~300K events in `mt_events` table.
   that when we introduce a new version of a process or a new process category,
   we can reuse existing steps.
 * This example does not provide any suggestions about testing strategy in a
-  real application. 
+  real application.
 * This solution does not have an explicit projection (view model) of a process
   state. In this solution this was done for the sake of simplicity, but in a
   real application we may consider such a projection (view model), e.g. to

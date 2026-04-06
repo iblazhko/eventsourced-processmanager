@@ -1,10 +1,7 @@
-﻿namespace EventSourcedPM.Adapters.KurrentDb;
-
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using EventSourcedPM.Ports.EventStore;
+﻿using EventSourcedPM.Ports.EventStore;
 using KurrentDB.Client;
+
+namespace EventSourcedPM.Adapters.KurrentDb;
 
 public class KurrentDbAdapter<TState, TEvent>(
     KurrentDBClient client,

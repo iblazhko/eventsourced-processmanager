@@ -1,7 +1,5 @@
 namespace EventSourcedPM.Ports.CarrierIntegration.Commands;
 
-using System;
-
 public class BookCollectionWithCarrier
 {
     // ReSharper disable UnusedAutoPropertyAccessor.Global

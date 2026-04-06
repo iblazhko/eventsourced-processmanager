@@ -1,24 +1,20 @@
-namespace EventSourcedPM.Adapter.CarrierIntegrationStub;
-
-using System;
-using System.Threading.Tasks;
 using EventSourcedPM.Ports.CarrierIntegration.Commands;
 using EventSourcedPM.Ports.CarrierIntegration.Events;
-using MassTransit;
 using Serilog;
+using IWolverineBus = Wolverine.IMessageBus;
+
+namespace EventSourcedPM.Adapter.CarrierIntegrationStub;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class CarrierIntegrationStubAdapter : IConsumer<ManifestShipmentWithCarrier>, IConsumer<BookCollectionWithCarrier>
+public class CarrierIntegrationWolverineStubHandler(IWolverineBus bus)
 {
-    public async Task Consume(ConsumeContext<ManifestShipmentWithCarrier> context)
+    public async Task Handle(ManifestShipmentWithCarrier message)
     {
-        var message = context.Message;
-
-        Log.Information("In {MessageType} consumer: {@MessagePayload}", message.GetType().FullName, message);
+        Log.Information("In {MessageType} handler: {@MessagePayload}", message.GetType().FullName, message);
 
         await Task.Delay(TimeSpan.FromMilliseconds(500));
 
-        await context.Publish(
+        await bus.PublishAsync(
             message.ShipmentId.EndsWith('1')
                 ? new ShipmentCarrierManifestationFailed
                 {
@@ -26,26 +22,25 @@ public class CarrierIntegrationStubAdapter : IConsumer<ManifestShipmentWithCarri
                     CarrierId = message.CarrierId,
                     Failure = Guid.NewGuid().ToString("N"),
                 }
-                : new ShipmentManifestedWithCarrier
-                {
-                    ShipmentId = message.ShipmentId,
-                    CarrierId = message.CarrierId,
-                    TrackingNumber = Guid.NewGuid().ToString("N"),
-                }
+                : (object)
+                    new ShipmentManifestedWithCarrier
+                    {
+                        ShipmentId = message.ShipmentId,
+                        CarrierId = message.CarrierId,
+                        TrackingNumber = Guid.NewGuid().ToString("N"),
+                    }
         );
     }
 
-    public async Task Consume(ConsumeContext<BookCollectionWithCarrier> context)
+    public async Task Handle(BookCollectionWithCarrier message)
     {
-        var message = context.Message;
-
-        Log.Information("In {MessageType} consumer: {@MessagePayload}", message.GetType().FullName, message);
+        Log.Information("In {MessageType} handler: {@MessagePayload}", message.GetType().FullName, message);
 
         await Task.Delay(TimeSpan.FromMilliseconds(500));
 
         if (message.ShipmentId.EndsWith('2'))
         {
-            await context.Publish(
+            await bus.PublishAsync(
                 new CarrierCollectionBookingFailed
                 {
                     ShipmentId = message.ShipmentId,
@@ -56,7 +51,7 @@ public class CarrierIntegrationStubAdapter : IConsumer<ManifestShipmentWithCarri
         }
         else if (message.ShipmentId.EndsWith('3'))
         {
-            await context.Publish(
+            await bus.PublishAsync(
                 new CarrierCollectionBookingFailed
                 {
                     ShipmentId = message.ShipmentId,
@@ -65,7 +60,7 @@ public class CarrierIntegrationStubAdapter : IConsumer<ManifestShipmentWithCarri
                 }
             );
             await Task.Delay(TimeSpan.FromSeconds(2));
-            await context.Publish(
+            await bus.PublishAsync(
                 new CollectionBookedWithCarrier
                 {
                     ShipmentId = message.ShipmentId,
@@ -76,7 +71,7 @@ public class CarrierIntegrationStubAdapter : IConsumer<ManifestShipmentWithCarri
         }
         else
         {
-            await context.Publish(
+            await bus.PublishAsync(
                 new CollectionBookedWithCarrier
                 {
                     ShipmentId = message.ShipmentId,

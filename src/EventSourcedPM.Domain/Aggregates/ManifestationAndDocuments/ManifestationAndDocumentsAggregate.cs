@@ -1,10 +1,7 @@
-namespace EventSourcedPM.Domain.Aggregates.ManifestationAndDocuments;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using EventSourcedPM.Domain.Models;
 using EventSourcedPM.Messaging.ManifestationAndDocuments.Events;
+
+namespace EventSourcedPM.Domain.Aggregates.ManifestationAndDocuments;
 
 public static class ManifestationAndDocumentsAggregate
 {

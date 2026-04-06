@@ -1,9 +1,3 @@
-namespace EventSourcedPM.Application.ManifestationAndDocuments;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using EventSourcedPM.Domain.Aggregates.ManifestationAndDocuments;
 using EventSourcedPM.Domain.Models;
 using EventSourcedPM.Messaging.ManifestationAndDocuments.Commands;
@@ -11,6 +5,8 @@ using EventSourcedPM.Messaging.ManifestationAndDocuments.Events;
 using EventSourcedPM.Ports.EventStore;
 using Serilog;
 using CarrierIntegrationEvents = EventSourcedPM.Ports.CarrierIntegration.Events;
+
+namespace EventSourcedPM.Application.ManifestationAndDocuments;
 
 public interface IManifestationAndDocumentsSubprocess
 {

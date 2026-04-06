@@ -1,6 +1,6 @@
-namespace EventSourcedPM.Domain.Aggregates.Orchestration;
-
 using OneOf;
+
+namespace EventSourcedPM.Domain.Aggregates.Orchestration;
 
 public class ShipmentProcessStageStatus
     : OneOfBase<

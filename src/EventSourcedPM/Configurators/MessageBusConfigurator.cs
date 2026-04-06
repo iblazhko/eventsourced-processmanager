@@ -1,62 +1,22 @@
-namespace EventSourcedPM.Configurators;
-
-using EventSourcedPM.Adapter.CarrierIntegrationStub;
-using EventSourcedPM.Adapters.MassTransitMessageBus;
-using EventSourcedPM.Application.CollectionBooking;
-using EventSourcedPM.Application.ManifestationAndDocuments;
-using EventSourcedPM.Application.Orchestration;
+using EventSourcedPM.Adapters.WolverineMessageBus;
 using EventSourcedPM.Configuration;
 using EventSourcedPM.Ports.MessageBus;
-using MassTransit;
-using Microsoft.Extensions.DependencyInjection;
 
-public static class MassTransitConfigurator
+namespace EventSourcedPM.Configurators;
+
+public static class MessageBusConfigurator
 {
-    public static IServiceCollection AddApplicationMessageBus(this IServiceCollection services, ShipmentProcessSettings settings)
-    {
-        services.AddMassTransit(x =>
+    public static IServiceCollection AddApplicationMessageBus(this IServiceCollection services, ShipmentProcessSettings settings) =>
+        settings.MessageBusAdapter switch
         {
-            x.AddConsumer<ShipmentProcessTriggersConsumer>();
-            x.AddConsumer<ManifestationAndDocumentsTriggersConsumer>();
-            x.AddConsumer<CollectionBookingTriggersConsumer>();
-            x.AddConsumer<CarrierIntegrationStubAdapter>();
+            "Wolverine" => services.AddSingleton<IMessageBus, WolverineMessageBusAdapter>(),
+            "MassTransit" => services.AddMassTransitMessageBus(settings),
+            _ => throw new InvalidOperationException($"MessageBus adapter type '{settings.MessageBusAdapter}' is not supported"),
+        };
 
-            x.SetKebabCaseEndpointNameFormatter();
-            x.UsingRabbitMq(
-                (context, cfg) =>
-                {
-                    cfg.Host(
-                        settings.RabbitMq.Endpoint.Host,
-                        settings.RabbitMq.VHost,
-                        h =>
-                        {
-                            h.Username(settings.RabbitMq.Username);
-                            h.Password(settings.RabbitMq.Password);
-                        }
-                    );
+    public static IHostBuilder AddApplicationMessageBus(this IHostBuilder hostBuilder, ShipmentProcessSettings settings) =>
+        settings.MessageBusAdapter == "Wolverine"
+            ? hostBuilder.AddWolverineMessageBus(settings)
+            : hostBuilder;
 
-                    cfg.UseMessageRetry(retryConfig =>
-                    {
-                        retryConfig
-                            .Exponential(
-                                settings.MassTransit.Retry.Limit,
-                                settings.MassTransit.Retry.IntervalMin,
-                                settings.MassTransit.Retry.IntervalMax,
-                                settings.MassTransit.Retry.IntervalDelta
-                            )
-                            .Handle([typeof(Ports.EventStore.ConcurrencyException), typeof(Application.Orchestration.ConcurrencyException)]);
-                    });
-
-                    cfg.PrefetchCount = settings.MassTransit.PrefetchCount;
-                    cfg.ConcurrentMessageLimit = settings.MassTransit.ConcurrencyLimit;
-
-                    cfg.ConfigureEndpoints(context);
-                }
-            );
-        });
-
-        services.AddSingleton<IMessageBus, MassTransitMessageBusAdapter>();
-
-        return services;
-    }
 }

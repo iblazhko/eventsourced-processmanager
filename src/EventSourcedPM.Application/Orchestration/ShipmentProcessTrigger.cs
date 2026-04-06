@@ -1,11 +1,10 @@
-namespace EventSourcedPM.Application.Orchestration;
-
-using System;
 using EventSourcedPM.Messaging;
 using EventSourcedPM.Messaging.CollectionBooking.Events;
 using EventSourcedPM.Messaging.ManifestationAndDocuments.Events;
 using EventSourcedPM.Messaging.Orchestration.Events;
 using OneOf;
+
+namespace EventSourcedPM.Application.Orchestration;
 
 public class ShipmentProcessTrigger : OneOfBase<BaseShipmentProcessEvent, BaseShipmentEvent, BaseCollectionBookingEvent>
 {

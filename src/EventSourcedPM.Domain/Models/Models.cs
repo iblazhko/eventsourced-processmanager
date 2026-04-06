@@ -1,7 +1,5 @@
 namespace EventSourcedPM.Domain.Models;
 
-using System;
-
 // ReSharper disable NotAccessedPositionalProperty.Global
 
 public readonly record struct ShipmentProcessCategory(string Id)

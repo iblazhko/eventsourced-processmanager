@@ -1,7 +1,6 @@
-namespace EventSourcedPM.Domain.Aggregates.CollectionBooking;
-
-using System;
 using EventSourcedPM.Domain.Models;
+
+namespace EventSourcedPM.Domain.Aggregates.CollectionBooking;
 
 public record CollectionBookingState(
     ShipmentProcessCategory ProcessCategory,

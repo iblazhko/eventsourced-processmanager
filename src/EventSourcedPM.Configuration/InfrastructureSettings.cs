@@ -1,7 +1,6 @@
-namespace EventSourcedPM.Configuration;
-
-using System;
 using System.Text;
+
+namespace EventSourcedPM.Configuration;
 
 public class EventStoreSettings
 {
@@ -88,6 +87,14 @@ public class MassTransitSettings
             .ToString();
 }
 
+public class WolverineSettings
+{
+    public int ConcurrencyLimit { get; init; } = 0;
+    public RetrySettings Retry { get; init; }
+
+    public override string ToString() => new StringBuilder().AppendSettingValue(() => ConcurrencyLimit).AppendSettingValue(() => Retry).ToString();
+}
+
 public class EndpointSettings
 {
     public string Scheme { get; init; }
@@ -107,4 +114,11 @@ public class RetrySettings
     public bool FastFirst => IntervalMin == TimeSpan.Zero;
 
     public override string ToString() => $"Limit: {Limit} / Timeout: {Timeout} [Min: {IntervalMin}; Max: {IntervalMax}; Delta: {IntervalDelta}]";
+}
+
+public class LoggingSettings
+{
+    public string Level { get; init; }
+
+    public override string ToString() => new StringBuilder().AppendSettingValue(() => Level).ToString();
 }

@@ -1,12 +1,7 @@
-﻿namespace EventSourcedPM.Adapters.MassTransitMessageBus;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using EventSourcedPM.Ports.MessageBus;
+﻿using EventSourcedPM.Ports.MessageBus;
 using MassTransit;
+
+namespace EventSourcedPM.Adapters.MassTransitMessageBus;
 
 public class MassTransitMessageBusAdapter(IBus bus) : IMessageBus
 {

@@ -1,6 +1,6 @@
-namespace EventSourcedPM.Application.Orchestration;
-
 using Serilog;
+
+namespace EventSourcedPM.Application.Orchestration;
 
 internal static class DelegatorLogger
 {

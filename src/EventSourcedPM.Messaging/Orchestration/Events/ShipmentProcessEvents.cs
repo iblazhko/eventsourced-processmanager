@@ -1,7 +1,6 @@
-namespace EventSourcedPM.Messaging.Orchestration.Events;
-
-using System;
 using EventSourcedPM.Messaging.Models;
+
+namespace EventSourcedPM.Messaging.Orchestration.Events;
 
 // Overall shipment process
 public class ShipmentProcessStarted : BaseShipmentProcessEvent

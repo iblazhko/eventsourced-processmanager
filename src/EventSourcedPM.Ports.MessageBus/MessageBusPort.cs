@@ -1,10 +1,5 @@
 ﻿namespace EventSourcedPM.Ports.MessageBus;
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
 public record MessageMetadata(string MessageTypeFullName, Guid MessageId, Guid CorrelationId, Guid? CausationId);
 
 public record MessageWithMetadata(object Message, MessageMetadata Metadata);

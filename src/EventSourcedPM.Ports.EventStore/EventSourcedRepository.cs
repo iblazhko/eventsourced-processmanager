@@ -1,11 +1,5 @@
 namespace EventSourcedPM.Ports.EventStore;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
 public class EventSourcedRepository<TState, TEvent>(IEventStore<TState, TEvent> eventStore)
 {
     private IEventStore<TState, TEvent> EventStore { get; } = eventStore;

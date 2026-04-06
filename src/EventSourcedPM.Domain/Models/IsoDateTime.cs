@@ -1,7 +1,5 @@
 namespace EventSourcedPM.Domain.Models;
 
-using System;
-
 public static class IsoDateTimeExtensions
 {
     public static string ToIsoDate(this DateOnly date) => date.ToString("yyyy-MM-dd");

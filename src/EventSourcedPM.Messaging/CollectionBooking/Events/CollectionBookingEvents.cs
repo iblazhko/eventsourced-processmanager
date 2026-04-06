@@ -1,7 +1,6 @@
-namespace EventSourcedPM.Messaging.CollectionBooking.Events;
-
-using System;
 using EventSourcedPM.Messaging.Models;
+
+namespace EventSourcedPM.Messaging.CollectionBooking.Events;
 
 public class CollectionBookingInitialized : BaseCollectionBookingEvent
 {

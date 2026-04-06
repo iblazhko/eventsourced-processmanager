@@ -1,10 +1,7 @@
-﻿namespace EventSourcedPM.Adapters.MassTransitEventStorePublisher;
-
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventSourcedPM.Ports.EventStore;
+﻿using EventSourcedPM.Ports.EventStore;
 using MassTransit;
+
+namespace EventSourcedPM.Adapters.MassTransitEventStorePublisher;
 
 public class MassTransitEventStorePublisherAdapter(IBus bus) : IEventPublisher
 {
