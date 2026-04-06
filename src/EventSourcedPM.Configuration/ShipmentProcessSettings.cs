@@ -5,7 +5,7 @@ namespace EventSourcedPM.Configuration;
 public class ShipmentProcessSettings
 {
     public string ApiBaseUrl { get; init; }
-    public string EventStoreAdapter { get; init; } = "EventStoreDB";
+    public string EventStoreAdapter { get; init; } = "KurrentDB";
     public string MessageBusAdapter { get; init; } = "MassTransit";
     public EventStoreSettings EventStore { get; init; }
     public PostgresSettings Postgres { get; init; }

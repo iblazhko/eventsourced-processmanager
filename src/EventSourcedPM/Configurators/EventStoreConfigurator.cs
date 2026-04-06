@@ -45,7 +45,7 @@ public static class EventStoreConfigurator
 
         switch (settings.EventStoreAdapter)
         {
-            case "EventStoreDB":
+            case "KurrentDB":
                 services.AddSingleton<IEventTypeResolver, EventTypeResolver<BaseShipmentWithProcessCategoryEvent>>();
                 services.AddSingleton<IEventSerializer, EventJsonSerializer>();
 

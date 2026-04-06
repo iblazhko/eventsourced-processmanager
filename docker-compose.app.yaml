@@ -7,6 +7,8 @@ services:
       dockerfile: eventsourced-pm.Dockerfile
     environment:
       - EventSourcedPM__ApiBaseUrl=http://*:43210
+      - EventSourcedPM__EventStoreAdapter=KurrentDB
+      - EventSourcedPM__MessageBusAdapter=MassTransit
       - EventSourcedPM__EventStore__Endpoint__Host=eventstore
       - EventSourcedPM__EventStore__Username=admin
       - EventSourcedPM__EventStore__Password=changeit
@@ -19,6 +21,7 @@ services:
       - EventSourcedPM__RabbitMq__Password=changeit
       - EventSourcedPM__RabbitMq__VHost=espm
       - EventSourcedPM__WaitForInfrastructureOnStartup=true
+      - EventSourcedPM__Logging__Level=Error
     ports:
       - 43210:43210
     networks:

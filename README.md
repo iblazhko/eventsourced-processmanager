@@ -160,28 +160,39 @@ stored in *Collection Booking* event stream.
 Assuming that .NET 10 SDK, PowerShell Core 7, and Docker with Docker Compose
 plugin are installed.
 
-Select EventStore adapter by editing `EventStoreAdapter` parameter in
-`appsettings.json`:
+### (Optional) Select adapters
 
-```json
-{
-    "EventSourcedPM": {
-        "EventStoreAdapter": "EventStoreDB",
-        ...
-    }
-}
+Select EventStore adapter by editing `EventStoreAdapter` environment variable in
+`docker-compose.app.yaml`:
+
+```yaml
+    environment:
+        - EventSourcedPM__EventStoreAdapter=KurrentDB
 ```
 
 or
 
-```json
-{
-    "EventSourcedPM": {
-        "EventStoreAdapter": "MartenDB",
-        ...
-    }
-}
+```yaml
+    environment:
+        - EventSourcedPM__EventStoreAdapter=MartenDB
 ```
+
+Select MessageBus adapter by editing `MessageBusAdapter` environment variable in
+`docker-compose.app.yaml`:
+
+```yaml
+    environment:
+        - EventSourcedPM__MessageBusAdapter=MassTransit
+```
+
+or
+
+```yaml
+    environment:
+        - EventSourcedPM__MessageBusAdapter=Wolverine
+```
+
+### Start
 
 Start the infrastructure and application in Docker Compose:
 
